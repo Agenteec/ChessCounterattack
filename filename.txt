@@ -1,0 +1,4 @@
+brightness 1
+FrameRateLimit 60
+FullScreen 0
+Vsynk  0
