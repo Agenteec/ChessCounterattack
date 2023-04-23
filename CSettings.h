@@ -9,6 +9,15 @@ struct KeyBind
 	string KeyName;
 	sf::Keyboard::Key key;
 };
+class CChessSettings
+{
+public:
+	float scale;
+	int cellSize;
+	CChessSettings() :scale(1), cellSize(50){}
+	
+
+};
 class CVideoSettings
 {
 public:
@@ -97,9 +106,11 @@ public:
 class CSettings
 {
 	public:
+		CChessSettings chess;
 		CVideoSettings video;
 		CVolumeSettings volume;
 		CControlSettings controls;
+		
 		bool SetSettings(sf::RenderWindow* window)
 		{
 			#pragma region Video settings

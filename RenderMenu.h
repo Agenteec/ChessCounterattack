@@ -15,6 +15,8 @@ void scaleImage(sf::Sprite& sprite, int desiredWidth, int desiredHeight);
 class RenderMenu
 {
 public:
+    static bool showRenderMenu;
+
 
     ///Переместить в отдельный класс
     static int gameMode; // Индекс выбранного режима игры
@@ -31,6 +33,7 @@ public:
 
 
     static bool OnGameGUI;
+    static bool Play;
 
     static bool showConsole;
     static bool showSettings;
@@ -239,8 +242,10 @@ public:
 
         if (ImGui::Button(u8"Запуск"))
         {
-            // Нажата кнопка "Запуск"
-            // Здесь можно написать код для запуска игры с выбранными настройками
+            showRenderMenu = false;
+            showLocalGame = false;
+
+            OnGameGUI = true;
 
             printf("Starting game...\n");
         }
@@ -392,17 +397,32 @@ public:
 
         // Отрисовка кнопок
         ImGui::Dummy(ImVec2(10.0f, RenderMenu::CGlobalSettings.video.WinH / 2));
+        if (OnGameGUI)
+            if (ImGui::Button(u8"Завершить игру", ImVec2(200.f, 50.f)))
+            {
+                // Действия при нажатии на кнопку "New Game"
+                OnGameGUI = false;
+            }
+        if (OnGameGUI)
+            if (ImGui::Button(u8"Play", ImVec2(200.f, 50.f)))
+            {
+                // Действия при нажатии на кнопку "New Game"
+                Play = true;
+            }
+        if (!OnGameGUI)
         if (ImGui::Button(u8"Локальная игра", ImVec2(200.f, 50.f)))
         {
             // Действия при нажатии на кнопку "New Game"
             showLocalGame = true;
         }
         ImGui::Spacing();
+        if (!OnGameGUI)
         if (ImGui::Button(u8"Сетевая игра", ImVec2(200.f, 50.f)))
         {
             // Действия при нажатии на кнопку "Load Game"
         }
         ImGui::Spacing();
+        if (!OnGameGUI)
         if (ImGui::Button(u8"Загрузить игру", ImVec2(200.f, 50.f)))
         {
             // Действия при нажатии на кнопку "Load Game"

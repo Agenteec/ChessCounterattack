@@ -1,10 +1,12 @@
 #include "RenderMenu.h"
 
+bool RenderMenu::showRenderMenu = true;
+
 bool RenderMenu::showConsole = false;
 bool RenderMenu::showSettings = false;
 bool RenderMenu::showLocalGame = false;
 bool RenderMenu::OnGameGUI = false;
-
+bool RenderMenu::Play = false;
 ///
 int RenderMenu::gameMode;
 float RenderMenu::moveTime = 60.0f; // Количество секунд на ход

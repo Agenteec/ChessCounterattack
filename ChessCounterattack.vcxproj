@@ -76,7 +76,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\Agenteec\Desktop\HWNew\ChessMaster_2023_04\ChessCounterattack\imgui-console-master\include;C:\Users\Agenteec\Desktop\HWNew\ChessMaster_2023_04\ChessCounterattack\imgui;C:\Libs\SFML-2.5.1VS\include;C:\Libs\Box2D\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)imgui-console-master\include;$(ProjectDir)imgui;C:\Libs\SFML-2.5.1VS\include;C:\Libs\Box2D\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -94,7 +94,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\Agenteec\Desktop\HWNew\ChessMaster_2023_04\ChessCounterattack\imgui-console-master\include;C:\Users\Agenteec\Desktop\HWNew\ChessMaster_2023_04\ChessCounterattack\imgui;C:\Libs\SFML-2.5.1VS\include;C:\Libs\Box2D\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Libs\SFML-2.5.1VS\include;C:\Libs\Box2D\include;$(ProjectDir)imgui-console-master\include;$(ProjectDir)imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -112,7 +112,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\Agenteec\Desktop\HWNew\ChessMaster_2023_04\ChessCounterattack\imgui-console-master\include;C:\Users\Agenteec\Desktop\HWNew\ChessMaster_2023_04\ChessCounterattack\imgui;C:\Libs\SFML-2.5.1VS\include;C:\Libs\Box2D\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)imgui-console-master\include;$(ProjectDir)imgui;C:\Libs\SFML-2.5.1VS\include;C:\Libs\Box2D\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -130,7 +130,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\Agenteec\Desktop\HWNew\ChessMaster_2023_04\ChessCounterattack\imgui-console-master\include;C:\Users\Agenteec\Desktop\HWNew\ChessMaster_2023_04\ChessCounterattack\imgui;C:\Libs\SFML-2.5.1VS\include;C:\Libs\Box2D\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Libs\SFML-2.5.1VS\include;C:\Libs\Box2D\include;$(ProjectDir)imgui-console-master\include;$(ProjectDir)imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -143,6 +143,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ChessBoard.cpp" />
+    <ClCompile Include="ComCode.cpp" />
     <ClCompile Include="CSettings.cpp" />
     <ClCompile Include="imgui-console-master\src\imgui_console.cpp" />
     <ClCompile Include="imgui\imgui-SFML.cpp" />
@@ -151,11 +153,23 @@
     <ClCompile Include="imgui\imgui_tables.cpp" />
     <ClCompile Include="imgui\imgui_widgets.cpp" />
     <ClCompile Include="OnGameUI.cpp" />
+    <ClCompile Include="RenderClassicChess.cpp" />
     <ClCompile Include="RenderMenu.cpp" />
+    <ClCompile Include="SFC\BezierAbstractCurve.cpp" />
+    <ClCompile Include="SFC\BezierCubicCurve.cpp" />
+    <ClCompile Include="SFC\BezierSquareCurve.cpp" />
+    <ClCompile Include="SFC\nanosvg++\Image.cpp" />
+    <ClCompile Include="SFC\nanosvg++\Nanosvg.cpp" />
+    <ClCompile Include="SFC\nanosvg++\Nanosvgrastr.cpp" />
+    <ClCompile Include="SFC\nanosvg++\Path.cpp" />
+    <ClCompile Include="SFC\nanosvg++\Rasterizer.cpp" />
+    <ClCompile Include="SFC\nanosvg++\Shape.cpp" />
+    <ClCompile Include="SFC\Svg.cpp" />
     <ClCompile Include="SFtoS.cpp" />
     <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ChessBoard.h" />
     <ClInclude Include="CSettings.h" />
     <ClInclude Include="imgui-console-master\include\csys\api.h" />
     <ClInclude Include="imgui-console-master\include\csys\arguments.h" />
@@ -180,7 +194,24 @@
     <ClInclude Include="imgui\imstb_textedit.h" />
     <ClInclude Include="imgui\imstb_truetype.h" />
     <ClInclude Include="OnGameUI.h" />
+    <ClInclude Include="RenderClassicChess.h" />
     <ClInclude Include="RenderMenu.h" />
+    <ClInclude Include="SFC\Base.hpp" />
+    <ClInclude Include="SFC\BezierAbstractCurve.hpp" />
+    <ClInclude Include="SFC\BezierCubicCurve.hpp" />
+    <ClInclude Include="SFC\BezierCurve.hpp" />
+    <ClInclude Include="SFC\BezierSquareCurve.hpp" />
+    <ClInclude Include="SFC\debug.hpp" />
+    <ClInclude Include="SFC\nanosvg++\enums.hpp" />
+    <ClInclude Include="SFC\nanosvg++\Image.hpp" />
+    <ClInclude Include="SFC\nanosvg++\nanosvg.hpp" />
+    <ClInclude Include="SFC\nanosvg++\nanosvgrastr.hpp" />
+    <ClInclude Include="SFC\nanosvg++\nsvgpp.hpp" />
+    <ClInclude Include="SFC\nanosvg++\Path.hpp" />
+    <ClInclude Include="SFC\nanosvg++\Rasterizer.hpp" />
+    <ClInclude Include="SFC\nanosvg++\Shape.hpp" />
+    <ClInclude Include="SFC\Svg.hpp" />
+    <ClInclude Include="SFC\VertexVector.hpp" />
     <ClInclude Include="SFtoS.h" />
   </ItemGroup>
   <ItemGroup>
