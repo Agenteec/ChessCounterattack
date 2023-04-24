@@ -154,3 +154,33 @@
                                     //cout <<  << "/" <<  << endl;
                                     //newPos = sf::Vector2f((25 * RenderMenu::CGlobalSettings.chess.scale) * int(p.x / (25 * RenderMenu::CGlobalSettings.chess.scale)), (25 * RenderMenu::CGlobalSettings.chess.scale) * int(p.y / (25 * RenderMenu::CGlobalSettings.chess.scale)));
                                     //if (x != -1)
+#pragma region Бинарный поиск расстояния
+/*std::vector<int> xCoords;
+for (int i = 0; i < Board.XMax-1; ++i)
+{
+    xCoords.push_back(i * RenderMenu::CGlobalSettings.chess.cellSize * RenderMenu::CGlobalSettings.chess.scale + RenderMenu::CGlobalSettings.video.WinW / 2 - Board.XMax / 2 * RenderMenu::CGlobalSettings.chess.cellSize * RenderMenu::CGlobalSettings.chess.scale);
+}
+std::sort(xCoords.begin(), xCoords.end());
+
+std::vector<int> yCoords;
+for (int j = 0; j < Board.YMax-1; ++j)
+{
+    yCoords.push_back(j * RenderMenu::CGlobalSettings.chess.cellSize * RenderMenu::CGlobalSettings.chess.scale + RenderMenu::CGlobalSettings.video.WinH / 10);
+}
+std::sort(yCoords.begin(), yCoords.end());
+
+int xx = std::distance(xCoords.begin(), std::lower_bound(xCoords.begin(), xCoords.end(), pos.x));
+if (xx > 0 && pos.x - xCoords[xx - 1] < xCoords[xx] - pos.x)
+{
+    xx--;
+}
+
+int yy = std::distance(yCoords.begin(), std::lower_bound(yCoords.begin(), yCoords.end(), pos.y));
+if (yy > 0 && pos.y - yCoords[yy - 1] < yCoords[yy] - pos.y)
+{
+    yy--;
+}
+
+    break;*/
+    //}
+#pragma endregion

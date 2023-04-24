@@ -11,42 +11,8 @@
 #include <windows.h>
 #include "RenderMenu.h"
 #include "CSettings.h"
-//#include "ChessBoard.h"
 #include "RenderClassicChess.h"
-//#include "SFC/Svg.hpp"
-//void MovePiece(sf::RenderWindow* window, sf::Event event, sf::Sprite& sprite);
 
-std::string toChessNote(sf::Vector2f p)
-{
-    std::string s = "";
-    s += char(p.x / 50 + 97);
-    s += char(7 - p.y / 50 + 49);
-    return s;
-}
-
-sf::Vector2f toCoord(char a, char b)
-{
-    int x = int(a) - 97;
-    int y = 7 - int(b) + 49;
-    return sf::Vector2f(x * 50, y * 50);
-}
-/*void move(std::string str)
-{
-    sf::Vector2f oldPos = toCoord(str[0], str[1]);
-    sf::Vector2f newPos = toCoord(str[2], str[3]);
-
-    for (int i = 0; i < 32; i++)
-        if (f[i].getPosition() == newPos) f[i].setPosition(-100, -100);
-
-    for (int i = 0; i < 32; i++)
-        if (f[i].getPosition() == oldPos) f[i].setPosition(newPos);
-
-    //castling       //if the king didn't move
-    if (str == "e1g1") if (position.find("e1") == -1) move("h1f1");
-    if (str == "e8g8") if (position.find("e8") == -1) move("h8f8");
-    if (str == "e1c1") if (position.find("e1") == -1) move("a1d1");
-    if (str == "e8c8") if (position.find("e8") == -1) move("a8d8");
-}*/
 int main()
 {
     //float Scale = 1.5f;
@@ -59,7 +25,7 @@ int main()
     localtime_s(&tm, &t);
     std::stringstream* ss = new stringstream;
     // форматируем дату в нужном формате
-    *ss << "Alpha V(0.3.0)  ";
+    *ss << "Alpha V(0.5.0)  ";
     *ss << std::put_time(&tm, "%d.%m.%Y") << std::endl;
     RenderMenu::VersionBuildStr = ss->str();
     delete ss;
