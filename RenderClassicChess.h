@@ -7,9 +7,10 @@
 #include <cmath>
 struct MoveFrTo
 {
+    int piece;
     sf::Vector2i from;
     sf::Vector2i to;
-    MoveFrTo(sf::Vector2i from, sf::Vector2i to) :from(from), to(to){}
+    MoveFrTo(sf::Vector2i from, sf::Vector2i to,int piece) :from(from), to(to),piece(piece){}
 };
 struct MoveWB
 {
@@ -212,7 +213,7 @@ public:
                                     }
                                     Board.board[lastmove.to.x][lastmove.to.y] = EMPTYPiece;
                                 }
-                                Moves.push_back(MoveWB(MoveFrTo(SpritePieces[0][n].Pos, sf::Vector2i(xx, yy)), MoveFrTo(sf::Vector2i(0, 0), sf::Vector2i(0, 0))));
+                                Moves.push_back(MoveWB(MoveFrTo(SpritePieces[0][n].Pos, sf::Vector2i(xx, yy), SpritePieces[0][n].Type), MoveFrTo(sf::Vector2i(0, 0), sf::Vector2i(0, 0),EMPTYPiece)));
                                 lastmove = LastMove(SpritePieces[0][n].Pos, sf::Vector2i(xx, yy), Board.board[SpritePieces[0][n].Pos.x][SpritePieces[0][n].Pos.y]);
                                 Board.board[SpritePieces[0][n].Pos.x][SpritePieces[0][n].Pos.y] = EMPTYPiece;
                                 if (result != 5)
@@ -267,6 +268,7 @@ public:
                                 
                                 Moves[Moves.size() - 1].Black.from = SpritePieces[0][n].Pos;
                                 Moves[Moves.size() - 1].Black.to = sf::Vector2i(xx, yy);
+                                Moves[Moves.size() - 1].Black.piece = SpritePieces[0][n].Type;
                                 Board.board[SpritePieces[0][n].Pos.x][SpritePieces[0][n].Pos.y] = EMPTYPiece;
                                 if (result != 5)
                                 for (size_t i = 0; i < SpritePieces->size(); i++)
@@ -453,12 +455,16 @@ public:
             }
         }
     }
-    int isValidMove(std::pair<int, int> from, std::pair<int, int> to, std::vector<sf::Vector2i>* moves = nullptr)
+    int isValidMove(std::pair<int, int> from, std::pair<int, int> to,int king = 0, std::vector<sf::Vector2i>* moves = nullptr)
     {
         __int8 piece = Board.board[from.first][from.second];
         __int8 piece2 = Board.board[to.first][to.second];
         cout << ChessPieceStr(piece) << " (" << from.first << ", " << from.second << ")\n";
         cout << ChessPieceStr(piece2) << " (" << to.first << ", " << to.second << ")\n";
+        if (king > 0)
+        {
+            return (isValidMoveHorse(from, to,king)|| isValidMoveHeavy(from, to,king)|| isValidMoveDiag(from, to, king));
+        }
         //Огонь по своим
         if (((piece>=0&&piece<=5)&& (piece2 >= 0 && piece2 <= 5))|| ((piece >= 6 && piece <= 11) && (piece2 >= 6 && piece2 <= 11)))
         {
@@ -511,9 +517,72 @@ public:
 
         return false; 
     }
-    int isValidMoveHeavy(std::pair<int, int> from, std::pair<int, int> to, std::vector<sf::Vector2i>* moves = nullptr)
+    int isValidMoveHeavy(std::pair<int, int> from, std::pair<int, int> to, int king = 0, std::vector<sf::Vector2i>* moves = nullptr)
     {
         //moves = new std::vector<sf::Vector2i>;
+        //Проверка на короля
+        __int8 tto = Board.board[to.first][to.second];
+        if (king == 0)
+        {
+            if (Board.board[from.first][from.second] < 5)
+            {
+                Board.board[to.first][to.second] = Board.board[from.first][from.second];
+                Board.board[from.first][from.second] = EMPTYPiece;
+                for (size_t i = 0; i < Board.XMax; i++)
+                {
+                    for (size_t j = 0; j < Board.YMax; j++)
+                        if (Board.board[i][j] == WKing)
+                        {
+                            if (!isValidMoveKing(std::pair(i, j), std::pair(i, j)))
+                            {
+                                Board.board[from.first][from.second] = Board.board[to.first][to.second];
+                                Board.board[to.first][to.second] = tto;
+                                return 0;
+                            }
+                            else
+                            {
+                                Board.board[from.first][from.second] = Board.board[to.first][to.second];
+                                Board.board[to.first][to.second] = tto;
+                                i = Board.XMax;
+                                break;
+
+                            }
+
+                        }
+                }
+
+            }
+            if (Board.board[from.first][from.second] > 5)
+            {
+                Board.board[to.first][to.second] = Board.board[from.first][from.second];
+                Board.board[from.first][from.second] = EMPTYPiece;
+                for (size_t i = 0; i < Board.XMax; i++)
+                {
+                    for (size_t j = 0; j < Board.YMax; j++)
+                        if (Board.board[i][j] == BKing)
+                        {
+                            if (!isValidMoveKing(std::pair(i, j), std::pair(i, j)))
+                            {
+                                Board.board[from.first][from.second] = Board.board[to.first][to.second];
+                                Board.board[to.first][to.second] = tto;
+                                return 0;
+                            }
+                            else
+                            {
+                                Board.board[from.first][from.second] = Board.board[to.first][to.second];
+                                Board.board[to.first][to.second] = tto;
+                                i = Board.XMax;
+                                break;
+
+                            }
+
+                        }
+                }
+
+            }
+        }
+        
+        
         bool p = false;
         //  ↓
         for (int i = from.first - 1; i >= 0; i--)
@@ -522,9 +591,29 @@ public:
             if (Board.board[i][from.second] != EMPTYPiece)
             {
                 if (i != to.first || from.second != to.second)
+                {
                     p = true;
+                    if (king == 1)
+                    {
+                        if (Board.board[i][from.second]==BQueen|| Board.board[i][from.second]==BRook)
+                        {
+                            return true;
+                        }
+                        break;
+                    }
+                    if (king == 2)
+                    {
+                        if (Board.board[i][from.second] == WQueen || Board.board[i][from.second] == WRook)
+                        {
+                            return true;
+                        }
+                        break;
+                    }
+                    
+                }
+               
             }
-            if (!p && (i == to.first && from.second == to.second))
+            if (!p && (i == to.first && from.second == to.second)&&king==0)
             {
                 return true;
             }
@@ -537,9 +626,28 @@ public:
             if (Board.board[i][from.second] != EMPTYPiece)
             {
                 if ((i != to.first || from.second != to.second))
+                {
                     p = true;
+                    if (king == 1)
+                    {
+                        if (Board.board[i][from.second] == BQueen || Board.board[i][from.second] == BRook)
+                        {
+                            return true;
+                        }
+                        break;
+                    }
+                    if (king == 2)
+                    {
+                        if (Board.board[i][from.second] == WQueen || Board.board[i][from.second] == WRook)
+                        {
+                            return true;
+                        }
+                        break;
+                    }
+                }
+                    
             }
-            if (!p && (i == to.first && from.second == to.second))
+            if (!p && (i == to.first && from.second == to.second) && king == 0)
             {
                 return true;
             }
@@ -552,9 +660,28 @@ public:
             if (Board.board[from.first][i] != EMPTYPiece)
             {
                 if ((from.first != to.first || i != to.second))
+                {
                     p = true;
+                    if (king == 1)
+                    {
+                        if (Board.board[from.first][i] == BQueen || Board.board[from.first][i] == BRook)
+                        {
+                            return true;
+                        }
+                        break;
+                    }
+                    if (king == 2)
+                    {
+                        if (Board.board[from.first][i] == WQueen || Board.board[from.first][i] == WRook)
+                        {
+                            return true;
+                        }
+                        break;
+                    }
+                }
+                   
             }
-            if (!p && (from.first == to.first && i == to.second))
+            if (!p && (from.first == to.first && i == to.second) && king == 0)
             {
                 return true;
             }
@@ -567,17 +694,96 @@ public:
             if (Board.board[from.first][i] != EMPTYPiece)
             {
                 if ((from.first != to.first || i != to.second))
+                {
                     p = true;
+                    if (king == 1)
+                    {
+                        if (Board.board[from.first][i] == BQueen || Board.board[from.first][i] == BRook)
+                        {
+                            return true;
+                        }
+                        break;
+                    }
+                    if (king == 2)
+                    {
+                        if (Board.board[from.first][i] == WQueen || Board.board[from.first][i] == WRook)
+                        {
+                            return true;
+                        }
+                        break;
+                    }
+                }
             }
-            if (!p && (from.first == to.first && i == to.second))
+            if (!p && (from.first == to.first && i == to.second) && king == 0)
             {
                 return true;
             }
         }
         return false;
     }
-    int isValidMoveDiag(std::pair<int, int> from, std::pair<int, int> to, std::vector<sf::Vector2i>* moves = nullptr)
+    int isValidMoveDiag(std::pair<int, int> from, std::pair<int, int> to,int king = 0, std::vector<sf::Vector2i>* moves = nullptr)
     {
+        //Проверка на короля
+        __int8 tto = Board.board[to.first][to.second];
+        if (king == 0)
+        {
+            if (Board.board[from.first][from.second] < 5)
+            {
+                Board.board[to.first][to.second] = Board.board[from.first][from.second];
+                Board.board[from.first][from.second] = EMPTYPiece;
+                for (size_t i = 0; i < Board.XMax; i++)
+                {
+                    for (size_t j = 0; j < Board.YMax; j++)
+                        if (Board.board[i][j] == WKing)
+                        {
+                            if (!isValidMoveKing(std::pair(i, j), std::pair(i, j)))
+                            {
+                                Board.board[from.first][from.second] = Board.board[to.first][to.second];
+                                Board.board[to.first][to.second] = tto;
+                                return 0;
+                            }
+                            else
+                            {
+                                Board.board[from.first][from.second] = Board.board[to.first][to.second];
+                                Board.board[to.first][to.second] = tto;
+                                i = Board.XMax;
+                                break;
+
+                            }
+
+                        }
+                }
+
+            }
+            if (Board.board[from.first][from.second] > 5)
+            {
+                Board.board[to.first][to.second] = Board.board[from.first][from.second];
+                Board.board[from.first][from.second] = EMPTYPiece;
+                for (size_t i = 0; i < Board.XMax; i++)
+                {
+                    for (size_t j = 0; j < Board.YMax; j++)
+                        if (Board.board[i][j] == BKing)
+                        {
+                            if (!isValidMoveKing(std::pair(i, j), std::pair(i, j)))
+                            {
+                                Board.board[from.first][from.second] = Board.board[to.first][to.second];
+                                Board.board[to.first][to.second] = tto;
+                                return 0;
+                            }
+                            else
+                            {
+                                Board.board[from.first][from.second] = Board.board[to.first][to.second];
+                                Board.board[to.first][to.second] = tto;
+                                i = Board.XMax;
+                                break;
+
+                            }
+
+                        }
+                }
+
+            }
+        }
         bool p = false;
         //  ↙
         for (int i = from.first - 1, j = from.second-1; i >= 0&&j>=0; i--,j--)
@@ -585,10 +791,30 @@ public:
 
             if (Board.board[i][j] != EMPTYPiece)
             {
+
                 if (i != to.first || j != to.second)
+                {
                     p = true;
+                    if (king == 1)
+                    {
+                        if (Board.board[i][j] == BQueen || Board.board[i][j] == BBishop)
+                        {
+                            return true;
+                        }
+                        break;
+                    }
+                    if (king == 2)
+                    {
+                        if (Board.board[i][j] == WQueen || Board.board[i][j] == WBishop)
+                        {
+                            return true;
+                        }
+                        break;
+                    }
+                }
+                    
             }
-            if (!p && (i == to.first && j == to.second))
+            if (!p && (i == to.first && j == to.second) && king == 0)
             {
                 return true;
             }
@@ -601,9 +827,27 @@ public:
             if (Board.board[i][j] != EMPTYPiece)
             {
                 if (i != to.first || j != to.second)
+                {
                     p = true;
+                    if (king == 1)
+                    {
+                        if (Board.board[i][j] == BQueen || Board.board[i][j] == BBishop)
+                        {
+                            return true;
+                        }
+                        break;
+                    }
+                    if (king == 2)
+                    {
+                        if (Board.board[i][j] == WQueen || Board.board[i][j] == WBishop)
+                        {
+                            return true;
+                        }
+                        break;
+                    }
+                }
             }
-            if (!p && (i == to.first && j == to.second))
+            if (!p && (i == to.first && j == to.second) && king == 0)
             {
                 return true;
             }
@@ -617,9 +861,27 @@ public:
             if (Board.board[i][j] != EMPTYPiece)
             {
                 if (i != to.first || j != to.second)
+                {
                     p = true;
+                    if (king == 1)
+                    {
+                        if (Board.board[i][j] == BQueen || Board.board[i][j] == BBishop)
+                        {
+                            return true;
+                        }
+                        break;
+                    }
+                    if (king == 2)
+                    {
+                        if (Board.board[i][j] == WQueen || Board.board[i][j] == WBishop)
+                        {
+                            return true;
+                        }
+                        break;
+                    }
+                }
             }
-            if (!p && (i == to.first && j == to.second))
+            if (!p && (i == to.first && j == to.second) && king == 0)
             {
                 return true;
             }
@@ -632,16 +894,34 @@ public:
             if (Board.board[i][j] != EMPTYPiece)
             {
                 if (i != to.first || j != to.second)
+                {
                     p = true;
+                    if (king == 1)
+                    {
+                        if (Board.board[i][j] == BQueen || Board.board[i][j] == BBishop)
+                        {
+                            return true;
+                        }
+                        break;
+                    }
+                    if (king == 2)
+                    {
+                        if (Board.board[i][j] == WQueen || Board.board[i][j] == WBishop)
+                        {
+                            return true;
+                        }
+                        break;
+                    }
+                }
             }
-            if (!p && (i == to.first && j == to.second))
+            if (!p && (i == to.first && j == to.second) && king == 0)
             {
                 return true;
             }
         }
         return false;
     }
-    int isValidMoveHorse(std::pair<int, int> from, std::pair<int, int> to, std::vector<sf::Vector2i>* moves = nullptr)
+    int isValidMoveHorse(std::pair<int, int> from, std::pair<int, int> to,int king = 0, std::vector<sf::Vector2i>* moves = nullptr)
     {
         moves = new std::vector<sf::Vector2i>;
         if (from.first+2<Board.XMax&&from.second+1< Board.YMax)
@@ -676,14 +956,40 @@ public:
         {
             moves->push_back(sf::Vector2i(from.first + 2, from.second - 1));
         }
-        for (size_t i = 0; i < moves->size(); i++)
+        if (king == 0)
         {
-            if ((moves[0][i].x==to.first)&& (moves[0][i].y == to.second))
+            for (size_t i = 0; i < moves->size(); i++)
             {
-                delete moves;
-                return true;
+                if ((moves[0][i].x == to.first) && (moves[0][i].y == to.second))
+                {
+                    delete moves;
+                    return true;
+                }
             }
         }
+        else if(king == 1)
+        {
+            for (size_t i = 0; i < moves->size(); i++)
+            {
+                if (Board.board[moves[0][i].x][moves[0][i].y]==BKnight)
+                {
+                    delete moves;
+                    return true;
+                }
+            }
+        }
+        else if (king == 2)
+        {
+            for (size_t i = 0; i < moves->size(); i++)
+            {
+                if (Board.board[moves[0][i].x][moves[0][i].y] == WKnight)
+                {
+                    delete moves;
+                    return true;
+                }
+            }
+        }
+
         return false;
     }
     int isValidMoveKing(std::pair<int, int> from, std::pair<int, int> to, std::vector<sf::Vector2i>* moves = nullptr)
@@ -698,15 +1004,39 @@ public:
 
             if (piece == WKing)
             {
-                Board.board[to.first][to.second] = WKing;
                 Board.board[from.first][from.second] = EMPTYPiece;
-
+                Board.board[to.first][to.second] = WKing;
+                //Если рядом король
                 for (size_t i = 0; i < Board.XMax; i++)
+                {
+                    for (size_t j = 0; j < Board.YMax; j++)
+                        if (Board.board[i][j] == BKing)
+                        {
+                            for (int x = i - 1; x <= i + 1; x++) {
+                                for (int y = j - 1; y <= j + 1; y++) {
+                                    if (x >= 0 && x < Board.XMax && y >= 0 && y < Board.YMax) {
+                                        if (Board.board[x][y] == WKing)
+                                        {
+
+                                            Board.board[from.first][from.second] = WKing;
+                                            Board.board[to.first][to.second] = tto;
+                                            return false;
+                                       }
+                                          
+                                    }
+                                }
+                            }
+                            i = Board.XMax;
+                            break;
+                            
+                        }
+                }
+                /*for (size_t i = 0; i < Board.XMax; i++)
                 {
                     for (size_t j = 0; j < Board.YMax; j++) {
                         if ((Board.board[i][j] != EMPTYPiece && Board.board[i][j] != BKing)&& Board.board[i][j]>=6)
                         {
-                            int result = isValidMove(std::pair(i,j), to);
+                            int result = isValidMove(std::pair(i,j), to,1);
                             if (result!=0)
                             {
                                 Board.board[to.first][to.second] = tto;
@@ -715,25 +1045,86 @@ public:
                             }
                         }
                     }
+                }*/
+                int result = isValidMove(to, to, 1);
+                if (result != 0)
+                {
+                    Board.board[to.first][to.second] = tto;
+                    Board.board[from.first][from.second] = WKing;
+                    return false;
                 }
             }
             if (piece == BKing)
             {
+                
+                Board.board[from.first][from.second] = EMPTYPiece;
+                Board.board[to.first][to.second] = BKing;
+                //Если рядом король
                 for (size_t i = 0; i < Board.XMax; i++)
+                {
+                    for (size_t j = 0; j < Board.YMax; j++)
+                        if (Board.board[i][j] == WKing)
+                        {
+                            for (int x = i - 1; x <= i + 1; x++) {
+                                for (int y = j - 1; y <= j + 1; y++) {
+                                    if (x >= 0 && x < Board.XMax && y >= 0 && y < Board.YMax) {
+                                        if (Board.board[x][y] == BKing)
+                                        {
+                                            Board.board[from.first][from.second] = BKing;
+                                            Board.board[to.first][to.second] = tto;
+                                            return false;
+                                        }
+                                            
+                                    }
+                                }
+                            }
+                            i = Board.XMax;
+                            break;
+                        }
+                }
+                /*for (size_t i = 0; i < Board.XMax; i++)
                 {
                     for (size_t j = 0; j < Board.YMax; j++) {
                         if ((Board.board[i][j] != EMPTYPiece && Board.board[i][j] != WKing) && Board.board[i][j] < 6)
                         {
                             int result = isValidMove(std::pair(i, j), to);
-                            if (result != 0 || result == -1)
+                            if (result != 0)
                             {
+                                Board.board[to.first][to.second] = tto;
+                                Board.board[from.first][from.second] = BKing;
                                 return false;
                             }
                         }
                     }
+                }*/
+                int result = isValidMove(to, to,2);
+                if (result != 0)
+                {
+                    Board.board[to.first][to.second] = tto;
+                    Board.board[from.first][from.second] = BKing;
+                    return false;
                 }
             }
             return true;
+        }
+        else
+        {
+            if(piece == WKing)
+                for (int i = 0; i < Moves.size(); i++)
+                {
+                    if (Moves[i].White.piece == WKing)
+                    {
+                        return false;
+                    }
+                }
+            if (piece == BKing)
+                for (int i = 0; i < Moves.size(); i++)
+                {
+                    if (Moves[i].White.piece == BKing)
+                    {
+                        return false;
+                    }
+                }
         }
         return false;
     }
@@ -784,13 +1175,14 @@ public:
                         }
                     }
                 }
+
                 if (from.second - to.second == 0 && piece2 == 12)
                 {
                     if (to.first == (Board.XMax - 1))
                     {
                         return 2;
                     }
-                    return true;
+                    return 6;
                 }
 
 
@@ -840,7 +1232,7 @@ public:
                     {
                         return 2;
                     }
-                    return true;
+                    return 6;
                 }
 
 
