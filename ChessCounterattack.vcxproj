@@ -155,16 +155,6 @@
     <ClCompile Include="OnGameUI.cpp" />
     <ClCompile Include="RenderClassicChess.cpp" />
     <ClCompile Include="RenderMenu.cpp" />
-    <ClCompile Include="SFC\BezierAbstractCurve.cpp" />
-    <ClCompile Include="SFC\BezierCubicCurve.cpp" />
-    <ClCompile Include="SFC\BezierSquareCurve.cpp" />
-    <ClCompile Include="SFC\nanosvg++\Image.cpp" />
-    <ClCompile Include="SFC\nanosvg++\Nanosvg.cpp" />
-    <ClCompile Include="SFC\nanosvg++\Nanosvgrastr.cpp" />
-    <ClCompile Include="SFC\nanosvg++\Path.cpp" />
-    <ClCompile Include="SFC\nanosvg++\Rasterizer.cpp" />
-    <ClCompile Include="SFC\nanosvg++\Shape.cpp" />
-    <ClCompile Include="SFC\Svg.cpp" />
     <ClCompile Include="SFtoS.cpp" />
     <ClCompile Include="Source.cpp" />
   </ItemGroup>
@@ -196,22 +186,6 @@
     <ClInclude Include="OnGameUI.h" />
     <ClInclude Include="RenderClassicChess.h" />
     <ClInclude Include="RenderMenu.h" />
-    <ClInclude Include="SFC\Base.hpp" />
-    <ClInclude Include="SFC\BezierAbstractCurve.hpp" />
-    <ClInclude Include="SFC\BezierCubicCurve.hpp" />
-    <ClInclude Include="SFC\BezierCurve.hpp" />
-    <ClInclude Include="SFC\BezierSquareCurve.hpp" />
-    <ClInclude Include="SFC\debug.hpp" />
-    <ClInclude Include="SFC\nanosvg++\enums.hpp" />
-    <ClInclude Include="SFC\nanosvg++\Image.hpp" />
-    <ClInclude Include="SFC\nanosvg++\nanosvg.hpp" />
-    <ClInclude Include="SFC\nanosvg++\nanosvgrastr.hpp" />
-    <ClInclude Include="SFC\nanosvg++\nsvgpp.hpp" />
-    <ClInclude Include="SFC\nanosvg++\Path.hpp" />
-    <ClInclude Include="SFC\nanosvg++\Rasterizer.hpp" />
-    <ClInclude Include="SFC\nanosvg++\Shape.hpp" />
-    <ClInclude Include="SFC\Svg.hpp" />
-    <ClInclude Include="SFC\VertexVector.hpp" />
     <ClInclude Include="SFtoS.h" />
   </ItemGroup>
   <ItemGroup>

@@ -4,6 +4,7 @@
 #include <imgui.h>
 #include "SFtoS.h"
 #include "CSettings.h"
+#include "OnGameUI.h"
 #include <imgui-SFML.h>
 #include <SFML/Graphics.hpp>
 #include <imgui_console/imgui_console.h>

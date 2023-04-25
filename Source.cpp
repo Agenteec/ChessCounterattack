@@ -25,7 +25,7 @@ int main()
     localtime_s(&tm, &t);
     std::stringstream* ss = new stringstream;
     // форматируем дату в нужном формате
-    *ss << "Alpha V(0.5.0)  ";
+    *ss << "Alpha V(0.9.0)  ";
     *ss << std::put_time(&tm, "%d.%m.%Y") << std::endl;
     RenderMenu::VersionBuildStr = ss->str();
     delete ss;
@@ -121,6 +121,7 @@ int main()
      
     RenderMenu::CGlobalSettings.chess.scale = 1.5;
     RenderClassicChess ChessRender;
+    OnGameUI gameUI;
     ChessRender.Rotate(2);
     //ImGuiConsole console;
 	#pragma region ÷икл отрисовки
@@ -187,12 +188,11 @@ int main()
             window->draw(background);
 
             if (RenderMenu::OnGameGUI)
-            ChessRender.Draw(window);
+           
             if (RenderMenu::OnGameGUI)
             {
-                //for (int i = 0; i < 32; i++) ChessRender.SpritePieces[0][i].Piece.move(offset);
-                //for (int i = 0; i < 32; i++) window->draw(ChessRender.SpritePieces[0][i].Piece); window->draw(ChessRender.SpritePieces[0][n].Piece);
-                //for (int i = 0; i < 32; i++) ChessRender.SpritePieces[0][i].Piece.move(-offset);
+                gameUI.draw();
+                ChessRender.Draw(window);
             }
             ImGui::SFML::Render(*window);
             
