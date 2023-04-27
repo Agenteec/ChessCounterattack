@@ -346,7 +346,7 @@ public:
 
         ImGui::Text(u8"Список доступных игр");
         static std::vector<std::string> games;// = GetAvailableGames(); // Получение списка доступных игр
-        games.push_back("127.0.0.1");
+        //games.push_back("127.0.0.1");
         static int selectedGame = 0; // Индекс выбранной игры
         static bool gameListChanged = true; // Флаг изменения списка игр
 

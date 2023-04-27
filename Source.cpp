@@ -26,7 +26,7 @@ int main()
     localtime_s(&tm, &t);
     std::stringstream* ss = new stringstream;
     // форматируем дату в нужном формате
-    *ss << "Alpha V(0.9.0)  ";
+    *ss << "Alpha V(1.3.0)  ";
     *ss << std::put_time(&tm, "%d.%m.%Y") << std::endl;
     RenderMenu::VersionBuildStr = ss->str();
     delete ss;

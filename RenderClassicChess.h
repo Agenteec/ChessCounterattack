@@ -273,9 +273,10 @@ public:
                     default:
                         break;
                     }
-                    //std::cout << "(" << SpritePieces[0][n].Pos.x << ", " << SpritePieces[0][n].Pos.y << ")" << "--> (" << xx << ", " << yy << ") - 1" << std::endl;
+                    //std::cout << "(" << SpritePieces[0][n].Pos.x << ", " << SpritePieces[0][n].Pos.y << ")" << "--> (" << xx << ", " << yy << ") - 1" << std::endl;'
                     //Проверка, не взял ли игорёк фигуру противника
-                    if (((SpritePieces[0][n].Type>=0&& SpritePieces[0][n].Type  <=5)&&!WorB)|| ((SpritePieces[0][n].Type >= 6 && SpritePieces[0][n].Type <= 11) && WorB))
+
+                    if (((SpritePieces[0][n].Type>=0&& SpritePieces[0][n].Type  <=5)&&(!WorB|| OnNetworkGame == 2))|| ((SpritePieces[0][n].Type >= 6 && SpritePieces[0][n].Type <= 11) && (WorB || OnNetworkGame == 1)))
                     {
                         SpritePieces[0][n].Piece.setPosition(oldPos);
                     }
@@ -285,7 +286,7 @@ public:
                         int result = isValidMove(std::pair(SpritePieces[0][n].Pos.x, SpritePieces[0][n].Pos.y), std::pair(xx, yy));
                         if (0 < result)
                         {
-                            SendMove(SpritePieces[0][n].Pos.x, SpritePieces[0][n].Pos.y,xx,yy);
+                                SendMove(SpritePieces[0][n].Pos.x, SpritePieces[0][n].Pos.y, xx, yy);
                             if (result != 7)
                             {
                                 newPos = sf::Vector2f(x * RenderMenu::CGlobalSettings.chess.cellSize * RenderMenu::CGlobalSettings.chess.scale + RenderMenu::CGlobalSettings.video.WinW / 2 - Board.XMax / 2 * RenderMenu::CGlobalSettings.chess.cellSize * RenderMenu::CGlobalSettings.chess.scale, y * RenderMenu::CGlobalSettings.chess.cellSize * RenderMenu::CGlobalSettings.chess.scale + RenderMenu::CGlobalSettings.video.WinH / 10);
@@ -295,6 +296,7 @@ public:
                             //Если ход белых
                             if (WorB&&(OnNetworkGame == 0|| OnNetworkGame ==1))
                             {
+                                
                                 int del = -1;
                                 //Если рокировка
                                 #pragma region Рокировка
@@ -478,7 +480,6 @@ public:
                                 {
                                     int i;
                                     int j;
-                                    //проверка на мат
                                     delete moves;
                                     moves = new vector<sf::Vector2i>;
                                     for (i = 0; i < Board.XMax; i++)
@@ -529,6 +530,7 @@ public:
                             }
                             else if(OnNetworkGame == 0 || OnNetworkGame == 2)
                             {
+                                
                                 #pragma region Рокировка
                                 if (result == 7)
                                 {
@@ -1402,7 +1404,13 @@ public:
             if (nc == nullptr)
             {
                 nc = new Client(RenderMenu::CGlobalSettings.network.ip, RenderMenu::CGlobalSettings.network.port);
-                nc->sendMessage("Hi server, i'm white client!");
+                nc->sendMessage("Hi server, i'm home client!");
+                /*
+                * Этот клиент управляет сервером
+                * Он отсылает начальные настройки
+                */
+
+                
             }
             else
             {
@@ -1429,7 +1437,7 @@ public:
             if (nc == nullptr)
             {
                 nc = new Client(RenderMenu::CGlobalSettings.network.ip, RenderMenu::CGlobalSettings.network.port);
-                nc->sendMessage("Hi server, i'm black client!");
+                nc->sendMessage("Hi server, i'm guest client!");
             }
             else
             {
@@ -1448,7 +1456,6 @@ public:
                         }
                     }
                 }
-                //nc->sendMessage("-");
                 nc->sendMessage(myMove);
 
 
