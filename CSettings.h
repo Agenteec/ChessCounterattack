@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include <string>
 #include <fstream>
+#include <SFML/Network/IpAddress.hpp>
 using namespace std;
 struct KeyBind
 {
@@ -15,8 +16,13 @@ public:
 	float scale;
 	int cellSize;
 	CChessSettings() :scale(1), cellSize(50){}
-	
-
+};
+class CNetworkSettings
+{
+public:
+	unsigned short port;
+	sf::IpAddress ip;
+	CNetworkSettings():port(25565),ip(sf::IpAddress::getLocalAddress()) {}
 };
 class CVideoSettings
 {
@@ -110,6 +116,7 @@ class CSettings
 		CVideoSettings video;
 		CVolumeSettings volume;
 		CControlSettings controls;
+		CNetworkSettings network;
 		
 		bool SetSettings(sf::RenderWindow* window)
 		{

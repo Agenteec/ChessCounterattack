@@ -32,14 +32,20 @@ public:
 
     ///Переместить в отдельный класс\\\
 
-
     static bool OnGameGUI;
+    static bool OnNetGameGUI;
     static bool Play;
+
+    static bool is_server_waiting;
 
     static bool showConsole;
     static bool showSettings;
     static bool showLocalGame;
-
+    static bool showNetworkGame;
+    static bool showNetworkGameCreator;
+    
+    static bool ServerOrClient;
+    //static RenderClassicChess* netGame;
     static bool ShowGraphicsSettings;
     static bool showControlsSettings;
     static bool showSoundSettings;
@@ -219,7 +225,7 @@ public:
 
     static void ShowLocalGame()
     {
-        ImGui::Begin(u8"Создание игры",&showLocalGame);
+        ImGui::Begin(u8"Создание локальной игры",&showLocalGame);
 
         // Выбор режима игры
 
@@ -264,6 +270,132 @@ public:
 
     }
 
+    static void ShowNetworkGame()
+    {
+        ImGui::Begin(u8"Создание сетевой игры", &showNetworkGameCreator);
+
+        // Выбор режима игры
+
+        ImGui::Text(u8"Игровой режим:");
+        ImGui::ListBox("##gamemode", &RenderMenu::gameMode, gameModes, 8, 4);
+
+        // Выбор контроля времени
+
+        if (RenderMenu::gameMode != 7)
+        {
+            ImGui::Checkbox(u8"Контроль времени", &isControlTime);
+            if (isControlTime)
+            {
+                ImGui::Text(u8"Контроль времени:");
+                ImGui::SliderFloat(u8"Время на партию", &moveTime, 30.0f, 3600.0f, "%.0f sec");
+                ImGui::Combo(u8"Добавление секунд на ход", &addTimeIndex, addTimes, 6);
+            }
+            ImGui::Checkbox(u8"Рейтинговая партия", &withRating);
+            // Кнопки "Запуск" и "Отмена"
+        }
+
+
+        if (ImGui::Button(u8"Запуск"))
+        {
+            is_server_waiting = true;
+            showRenderMenu = false;
+            showLocalGame = false;
+            showNetworkGameCreator = false;
+            showNetworkGame = false;
+            OnNetGameGUI = true;
+            ServerOrClient = true;
+            printf("Starting game...\n");
+        }
+
+        ImGui::SameLine();
+
+        if (ImGui::Button(u8"Отмена"))
+        {
+            showNetworkGameCreator = 0;
+        }
+
+        // Завершение окна ImGui
+
+        ImGui::End();
+
+    }
+
+    static void NetworkMenu()
+    {
+        ImGui::Begin(u8"Сетевая игра",&showNetworkGame);
+
+        ImGui::Text(u8"Подключение к серверу");
+        static char serverAddress[64] = "127.0.0.1"; // IP-адрес сервера
+        ImGui::InputText(u8"Адрес сервера", serverAddress, 64);
+
+        if (ImGui::Button(u8"Подключиться")) {
+            cout << serverAddress << endl;
+            CGlobalSettings.network.ip = serverAddress;
+            ServerOrClient = false;
+            is_server_waiting = false;
+            showRenderMenu = false;
+            showLocalGame = false;
+            showNetworkGameCreator = false;
+            showNetworkGame = false;
+            OnNetGameGUI = true;
+            
+            printf("Starting game...\n");
+        }
+
+        ImGui::Separator();
+
+        ImGui::Text(u8"Список доступных игр");
+        static std::vector<std::string> games;// = GetAvailableGames(); // Получение списка доступных игр
+        games.push_back("127.0.0.1");
+        static int selectedGame = 0; // Индекс выбранной игры
+        static bool gameListChanged = true; // Флаг изменения списка игр
+
+        if (ImGui::ListBoxHeader(u8"##Список игр", ImVec2(-1, 100))) {
+            for (int i = 0; i < games.size(); i++) {
+                bool isSelected = (selectedGame == i);
+                if (ImGui::Selectable(games[i].c_str(), isSelected)) {
+                    selectedGame = i;
+                }
+                if (isSelected) {
+                    ImGui::SetItemDefaultFocus();
+                }
+            }
+            ImGui::ListBoxFooter();
+        }
+
+        if (ImGui::Button(u8"Обновить список игр")) {
+            // Обработка нажатия на кнопку "Обновить список игр"
+            //games = GetAvailableGames();
+            gameListChanged = true;
+        }
+
+        ImGui::Separator();
+
+        if (ImGui::Button(u8"Создать новую игру")) {
+            showNetworkGameCreator = true;
+        }
+
+        if (ImGui::Button(u8"Присоединиться к выбранной игре")) {
+            // Обработка нажатия на кнопку "Присоединиться к выбранной игре"
+            if (selectedGame >= 0 && selectedGame < games.size()) {
+                //JoinGame(games[selectedGame]);
+            }
+        }
+
+        ImGui::End();
+    }
+
+    static void SerwerWait()
+    {
+            ImGui::Begin(u8"Waiting for opponent", &is_server_waiting, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings);
+            ImGui::Text(u8"Пожалуйста, подождите пока к вам не подключится опонент...");
+            if (ImGui::Button(u8"Отмена"))
+            {
+                //is_cancelled = true;
+            }
+            ImGui::End();
+        
+    }
 
     static void ImGuiFunctionDebug() {
         // Создаем статические переменные для отслеживания времени и FPS
@@ -389,6 +521,18 @@ public:
         {
             ShowLocalGame();
         }
+        if (showNetworkGame)
+        {
+            NetworkMenu();
+        }
+        if (showNetworkGameCreator)
+        {
+            ShowNetworkGame();
+        }
+        if (is_server_waiting)
+        {
+            SerwerWait();
+        }
         // Создание главного окна imgui
         ImGui::SetNextWindowSizeConstraints(ImVec2(RenderMenu::CGlobalSettings.video.WinW, RenderMenu::CGlobalSettings.video.WinH), ImVec2(FLT_MAX, FLT_MAX));
         ImGui::SetNextWindowSize(ImVec2(RenderMenu::CGlobalSettings.video.WinW, RenderMenu::CGlobalSettings.video.WinH), ImGuiCond_FirstUseEver);
@@ -401,32 +545,26 @@ public:
         if (OnGameGUI)
             if (ImGui::Button(u8"Завершить игру", ImVec2(200.f, 50.f)))
             {
-                // Действия при нажатии на кнопку "New Game"
+                
                 OnGameGUI = false;
-            }
-        if (OnGameGUI)
-            if (ImGui::Button(u8"Play", ImVec2(200.f, 50.f)))
-            {
-                // Действия при нажатии на кнопку "New Game"
-                Play = true;
             }
         if (!OnGameGUI)
         if (ImGui::Button(u8"Локальная игра", ImVec2(200.f, 50.f)))
         {
-            // Действия при нажатии на кнопку "New Game"
+            
             showLocalGame = true;
         }
         ImGui::Spacing();
         if (!OnGameGUI)
         if (ImGui::Button(u8"Сетевая игра", ImVec2(200.f, 50.f)))
         {
-            // Действия при нажатии на кнопку "Load Game"
+            showNetworkGame = true;
         }
         ImGui::Spacing();
         if (!OnGameGUI)
         if (ImGui::Button(u8"Загрузить игру", ImVec2(200.f, 50.f)))
         {
-            // Действия при нажатии на кнопку "Load Game"
+            
         }
         ImGui::Spacing();
         if (ImGui::Button(u8"Настройки", ImVec2(200.f, 50.f)))
@@ -436,7 +574,6 @@ public:
         ImGui::Spacing();
         if (ImGui::Button(u8"Выход", ImVec2(200.f, 50.f)))
         {
-            // Действия при нажатии на кнопку "Quit"
             window->close();
         }
 

@@ -13,6 +13,7 @@
 #include "CSettings.h"
 #include "RenderClassicChess.h"
 
+
 int main()
 {
     //float Scale = 1.5f;
@@ -118,11 +119,12 @@ int main()
     
     int r = 0, g = 0, b = 0;
     const int cellSize = 50;
-     
+    bool conection = false;
     RenderMenu::CGlobalSettings.chess.scale = 1.5;
     RenderClassicChess ChessRender;
-    OnGameUI gameUI;
     ChessRender.Rotate(2);
+    RenderClassicChess* NetGame = nullptr;
+    
     //ImGuiConsole console;
 	#pragma region Цикл отрисовки
         // Основной цикл
@@ -148,14 +150,23 @@ int main()
                     }
                     if (event.key.code == sf::Keyboard::Escape)
                     {
-                        if (RenderMenu::OnGameGUI)
+                        if (RenderMenu::OnGameGUI|| RenderMenu::OnNetGameGUI)
                         {
                             RenderMenu::showRenderMenu = RenderMenu::showRenderMenu == 0 ? 1 : 0;
                         }
                         
                     }
                 }
-                ChessRender.Mover(event, window);
+                if (RenderMenu::OnGameGUI)
+                {
+                    ChessRender.Mover(event, window);
+                }
+                if (RenderMenu::OnNetGameGUI&& NetGame!=nullptr)
+                {
+
+                    NetGame->Mover(event, window);
+                }
+               
                
             }
             
@@ -182,16 +193,37 @@ int main()
                 RenderMenu::Play = false;
                 ChessRender.play();
             }
-           
+            if (RenderMenu::is_server_waiting)
+            {
+
+            }
             // Завершение отрисовки imgui
             window->clear();
             window->draw(background);
 
-            if (RenderMenu::OnGameGUI)
+            if (RenderMenu::OnNetGameGUI)
+            {
+                if (NetGame==nullptr)
+                {
+                    if (RenderMenu::ServerOrClient)
+                    {
+                        NetGame = new RenderClassicChess(1,0);
+                        NetGame->Rotate(2);
+                    }
+                    else
+                    {
+                        NetGame = new RenderClassicChess(2, 0);
+                        NetGame->Rotate(3);
+                    }
+                    
+                }
+                
+                NetGame->Draw(window);
+            }
            
             if (RenderMenu::OnGameGUI)
             {
-                gameUI.draw();
+                
                 ChessRender.Draw(window);
             }
             ImGui::SFML::Render(*window);

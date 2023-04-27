@@ -5,8 +5,13 @@ bool RenderMenu::showRenderMenu = true;
 bool RenderMenu::showConsole = false;
 bool RenderMenu::showSettings = false;
 bool RenderMenu::showLocalGame = false;
+bool RenderMenu::showNetworkGame = false;
+bool RenderMenu::showNetworkGameCreator = false;
 bool RenderMenu::OnGameGUI = false;
+bool RenderMenu::OnNetGameGUI = false;
 bool RenderMenu::Play = false;
+bool RenderMenu::ServerOrClient  = false;
+bool RenderMenu::is_server_waiting = false;
 ///
 int RenderMenu::gameMode;
 float RenderMenu::moveTime = 60.0f; // Количество секунд на ход
@@ -18,7 +23,7 @@ const char* RenderMenu::gameModes[] = { "Standard", "Crazyhouse", "Chess960", "K
 const char* RenderMenu::addTimes[] = { "+0 sec", "+1 sec", "+2 sec", "+3 sec", "+4 sec","+5 sec" };
 const float RenderMenu::moveTimes[] = { 30.0f, 60.0f, 120.0f, 300.0f, 3600.0f };
 
-
+//RenderClassicChess *RenderMenu::netGame = nullptr;
 
 bool RenderMenu::ShowGraphicsSettings = true;
 bool RenderMenu::showControlsSettings = false;
