@@ -202,6 +202,7 @@ public:
             {
                 if (moves != nullptr)
                 {
+
                     delete moves;
                     moves = nullptr;
                     n = -1;
@@ -448,10 +449,10 @@ public:
                                                         }
                                                         if (moves->size() > 0)
                                                         {
-
-                                                            break;
                                                             i = Board.XMax;
                                                             j = Board.YMax;
+                                                            break;
+                                                            
 
                                                         }
                                                     }
@@ -465,9 +466,10 @@ public:
                                             }
                                             else
                                             {
-                                                break;
                                                 i = Board.XMax;
                                                 j = Board.YMax;
+                                                break;
+                                                
                                             }
                                                         
                                                           
@@ -476,7 +478,7 @@ public:
                                 }
                                 //Проверка на пат
                                 
-                                if (!BCheck)
+                                if (!BCheck&&!BMate)
                                 {
                                     int i;
                                     int j;
@@ -496,12 +498,14 @@ public:
                                                         k--;
                                                     }
                                                 }
+                                                
                                                 if (moves->size() > 0)
                                                 {
-
-                                                    break;
+                                                    
                                                     i = Board.XMax;
                                                     j = Board.YMax;
+                                                    break;
+                                                    
 
                                                 }
                                             }
@@ -711,7 +715,7 @@ public:
                                     
                                 }
                                 //проверка на пат
-                                if (!WCheck)
+                                if (!WCheck&&!WMate)
                                 {
                                     int i, j;
                                     delete moves;
@@ -732,10 +736,10 @@ public:
                                                 }
                                                 if (moves->size() > 0)
                                                 {
-
-                                                    break;
                                                     i = Board.XMax;
                                                     j = Board.YMax;
+                                                    break;
+                                                    
 
                                                 }
                                             }
@@ -1409,7 +1413,7 @@ public:
                 * Этот клиент управляет сервером
                 * Он отсылает начальные настройки
                 */
-
+                nc->sendMessage("~");
                 
             }
             else
@@ -1422,6 +1426,12 @@ public:
                         {
                             if (PacketMove[0] == 'm')
                             {
+                                /*if (n!=-1)
+                                {
+                                    SpritePieces[0][n].Piece.setPosition(oldPos);
+                                    isMove = 0;
+                                }*/
+                                
                                 Mover((PacketMove[1] - '0'), (PacketMove[2] - '0'), (PacketMove[3] - '0'), (PacketMove[4] - '0'));
                                 netMove = PacketMove;
                             }
@@ -1449,6 +1459,11 @@ public:
                         {
                             if (PacketMove[0] == 'm')
                             {
+                                if (n != -1)
+                                {
+                                    SpritePieces[0][n].Piece.setPosition(oldPos);
+                                    isMove = 0;
+                                }
                                 Mover((PacketMove[1] - '0'), (PacketMove[2] - '0'), (PacketMove[3] - '0'), (PacketMove[4] - '0'));
                                 netMove = PacketMove;
                             }

@@ -33,7 +33,7 @@ public:
             {
                 return "0-0";
             }
-            if (move.to.y - move.from.y == -2)
+            if (move.to.y - move.from.y <= -2)
             {
                 return "0-0-0";
             }
@@ -50,7 +50,7 @@ public:
     }
     void draw(int HBoard,vector <MoveWB> moves)
     {
-        ImGui::SetNextWindowSize(ImVec2(WinW / 3, WinH / 4));
+        ImGui::SetNextWindowSize(ImVec2(WinW / 5.2, WinH / 4));
         ImGui::GetStyle().Colors[ImGuiCol_WindowBg] = ImVec4(0, 0, 0, 0.5f);
         ImGui::Begin("Chess Game", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
         ImGui::SetWindowPos("Chess Game", ImVec2(ImVec2(WinW+WinW/3, WinH/4)));
@@ -60,14 +60,14 @@ public:
         {
             if (ImGui::Button(MoveToStr(moves[i].White).c_str()))
             {
-                // Действие при нажатии на ход
+                
                 std::cout << " Ход \n";
             }
             ImGui::SameLine();
             if(moves[i].Black.piece!=EMPTYPiece)
             if (ImGui::Button(MoveToStr(moves[i].Black).c_str()))
             {
-                // Действие при нажатии на ход
+                
                 std::cout << " Ход \n";
             }
         }

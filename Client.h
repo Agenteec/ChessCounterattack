@@ -8,13 +8,13 @@ public:
     bool debug;
     Client(const sf::IpAddress serverAddress, unsigned short serverPort) :
         m_socket(),
-        debug(0),
+        debug(1),
         m_serverAddress(serverAddress),
         m_serverPort(serverPort),
         m_running(true),
-        m_thread(&Client::receiveMessages, this)
+        m_thread(&Client::receiveMessages, this)//Передаём в поток функцию приёма сообщений
     {
-        if (m_socket.connect(serverAddress, serverPort) != sf::Socket::Done)
+        if (m_socket.connect(serverAddress, serverPort) != sf::Socket::Done)//Если подключение не состоялось
         {
             if(debug)
             std::cerr << "Failed to connect to server at " << serverAddress << ":" << serverPort << std::endl;
