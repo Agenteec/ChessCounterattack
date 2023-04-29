@@ -141,7 +141,7 @@ public:
     /// <summary>
     /// Запрос на отмену хода
     /// </summary>
-    bool NenBack;
+    bool NetBack;
 
     sf::Vector2i CordRotater(int x,int y)
     {
@@ -1786,14 +1786,32 @@ public:
                                     SpritePieces[0][n].Piece.setPosition(oldPos);
                                     isMove = 0;
                                 }
-                                Mover((PacketMove[1] - '0'), (PacketMove[2] - '0'), (PacketMove[3] - '0'), (PacketMove[4] - '0'));
-                                netMove = PacketMove;
+                                if (PacketMove[1] == 'b')
+                                {
+                                    Back = true;
+                                    NetBack = true;
+                                    netMove = PacketMove;
+                                }
+                                else
+                                {
+                                    Mover((PacketMove[1] - '0'), (PacketMove[2] - '0'), (PacketMove[3] - '0'), (PacketMove[4] - '0'));
+                                    netMove = PacketMove;
+                                }
+                               
                             }
                            
                         }
                     }
                 }
-                nc->sendMessage(myMove);
+                if (Back)
+                {
+                    nc->sendMessage("mb");
+                }
+                else
+                {
+                    nc->sendMessage(myMove);
+                }
+                
 
 
 
@@ -1820,9 +1838,10 @@ public:
     }
     void Draw(sf::RenderWindow* window)
     {
-        if ((Back&&OnNetworkGame ==0)||(Back&&NenBack))
+        if ((Back&&OnNetworkGame ==0)||(Back&&NetBack))
         {
             MoveBack();
+            NetBack = false;
         }
         if (OnNetworkGame>0)
         {
