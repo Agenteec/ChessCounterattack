@@ -5,21 +5,6 @@
 #include <SFML/Audio.hpp>
 #include "Client.h"
 #include <cmath>
-
-//struct MoveFrTo
-//{
-//    int piece;
-//    sf::Vector2i from;
-//    sf::Vector2i to;
-//    MoveFrTo(sf::Vector2i from, sf::Vector2i to,int piece) :from(from), to(to),piece(piece){}
-//};
-//struct MoveWB
-//{
-//    MoveFrTo White;
-//    MoveFrTo Black;
-//    MoveWB(MoveFrTo White, MoveFrTo Black) :White(White), Black(Black){}
-//
-//};
 struct LastMove
 {
     int piece;
@@ -30,44 +15,129 @@ struct LastMove
 class RenderClassicChess
 {
 public:
+    /// <summary>
+    /// Спрайты фигур
+    /// </summary>
     std::vector<SpritePiece>* SpritePieces;
+    /// <summary>
+    /// Текстуры фигур
+    /// </summary>
     sf::Texture* ChessPicesTexture;
+    /// <summary>
+    /// Игровая доска
+    /// </summary>
     ChessBoard Board;
+    
     #pragma region Chess text
     sf::Text ChessText;
     sf::Font font;
-    int Rotation;
     #pragma endregion
-    
+    /// <summary>
+    /// Поворот доски
+    /// </summary>
+    int Rotation;
+    /// <summary>
+    /// Осуществилось ли подключение
+    /// </summary>
     bool conection;
+    /// <summary>
+    /// Последний ход (для взятия на проходе)
+    /// </summary>
     LastMove lastmove;
-
+    /// <summary>
+    /// Игровое меню
+    /// </summary>
     OnGameUI gameUI;
+    /// <summary>
+    /// Ход полученый от сервера
+    /// </summary>
     string netMove;
-    bool isMove;//Совершается ли ход
-    int n;//Индекс выбранной фигуры
+    /// <summary>
+    /// Совершается ли ход
+    /// </summary>
+    bool isMove;
+    /// <summary>
+    /// Индекс выбранной фигуры
+    /// </summary>
+    int n;
+    /// <summary>
+    /// Изменение координат перемещаемого объекта
+    /// </summary>
     float dx, dy;
+    /// <summary>
+    /// Старая и новая позиция
+    /// </summary>
     sf::Vector2f oldPos, newPos;
     sf::Vector2f offset;
+    /// <summary>
+    /// Позиция объекта для перемещения
+    /// </summary>
     sf::Vector2i pos;
+    /// <summary>
+    /// Указатель на клиент(для подключения к серверу)
+    /// </summary>
     Client* nc;
     sf::SoundBuffer MoveSoundBuffer;
+    /// <summary>
+    /// Звук хода
+    /// </summary>
     sf::Sound MoveSound;
     sf::SoundBuffer CaptureSoundBuffer;
+    /// <summary>
+    /// Звук взятия
+    /// </summary>
     sf::Sound CaptureeSound;
+    /// <summary>
+    /// Наш последний ход для передачи серверу
+    /// </summary>
     string myMove;
+    /// <summary>
+    /// Чей ход Белые/Чёрные
+    /// </summary>
     bool WorB;
+
+
+    /// <summary>
+    /// Окно Победы/Ничьи
+    /// </summary>
     bool WinWindow;
     bool WinWindowC;
-    bool WCheck;
-    bool BCheck;
-    bool WMate;
-    bool BMate;
-    bool WBDraw;
 
+    
+    /// <summary>
+    /// Шах белым
+    /// </summary>
+    bool WCheck;
+    /// <summary>
+    /// Шах чёрным
+    /// </summary>
+    bool BCheck;
+    /// <summary>
+    /// Мат белым
+    /// </summary>
+    bool WMate;
+    /// <summary>
+    /// Мат чёрным
+    /// </summary>
+    bool BMate;
+    /// <summary>
+    /// Ничья
+    /// </summary>
+    bool WBDraw;
+    /// <summary>
+    /// Просмотр предыдущих ходов
+    /// </summary>
+    bool IsHistory;
+    /// <summary>
+    /// Режим сетевой игры
+    /// </summary>
     int OnNetworkGame;
     std::vector<MoveWB> Moves;
     std::vector<sf::Vector2i>* moves;
+    /// <summary>
+    /// Отмена хода
+    /// </summary>
+    bool Back;
 
     sf::Vector2i CordRotater(int x,int y)
     {
@@ -127,7 +197,7 @@ public:
         }
         return sf::Vector2i(xx, yy);
     }
-    RenderClassicChess() :Board(ChessBoard()), Rotation(1), offset(sf::Vector2f(25 * RenderMenu::CGlobalSettings.chess.scale, 25 * RenderMenu::CGlobalSettings.chess.scale)), isMove(0), n(-1), dx(0), dy(0), WorB(1) ,lastmove(LastMove(sf::Vector2i(), sf::Vector2i(),12)),WCheck(false),WMate(false),BMate(false),BCheck(false),moves(nullptr),WBDraw(false),OnNetworkGame(0),conection(0),netMove("-"),myMove("-"), WinWindow(0), WinWindowC(0) {
+    RenderClassicChess() :Board(ChessBoard()), Rotation(1), offset(sf::Vector2f(25 * RenderMenu::CGlobalSettings.chess.scale, 25 * RenderMenu::CGlobalSettings.chess.scale)), isMove(0), n(-1), dx(0), dy(0), WorB(1) ,lastmove(LastMove(sf::Vector2i(), sf::Vector2i(),12)),WCheck(false),WMate(false),BMate(false),BCheck(false),moves(nullptr),WBDraw(false),OnNetworkGame(0),conection(0),netMove("-"),myMove("-"), WinWindow(0), WinWindowC(0),nc(nullptr),Back(false),IsHistory(false) {
 
         
         MoveSoundBuffer.loadFromFile("source\\Sounds\\Move.wav");
@@ -252,6 +322,7 @@ public:
                     int temp;
                     int x = xx;
                     int y = yy;
+                    cout << ChessPieceStr(SpritePieces[0][n].Type) << " " << SpritePieces[0][n].Pos.x << "/" << SpritePieces[0][n].Pos.y << endl;
                     switch (Rotation)
                     {
                     case 1:
@@ -304,9 +375,8 @@ public:
                                 if (result == 7)
                                 {
                                    
-                                        Moves.push_back(MoveWB(MoveFrTo(SpritePieces[0][n].Pos, sf::Vector2i(xx, yy), SpritePieces[0][n].Type), MoveFrTo(sf::Vector2i(-1, -1), sf::Vector2i(-1, -1), EMPTYPiece)));
-                                        lastmove = LastMove(SpritePieces[0][n].Pos, sf::Vector2i(xx, yy), Board.board[SpritePieces[0][n].Pos.x][SpritePieces[0][n].Pos.y]);
-                                        if (SpritePieces[0][n].Pos.y - yy < 0)
+                                    Moves.push_back(MoveWB(MoveFrTo(SpritePieces[0][n].Pos, sf::Vector2i(xx, yy), SpritePieces[0][n].Type, Board.board[xx][yy]), MoveFrTo(sf::Vector2i(-1, -1), sf::Vector2i(-1, -1), EMPTYPiece, EMPTYPiece)));
+                                    if (SpritePieces[0][n].Pos.y - yy < 0)
                                         {
                                             Board.board[SpritePieces[0][n].Pos.x][SpritePieces[0][n].Pos.y + 3] = EMPTYPiece;
                                             Board.board[SpritePieces[0][n].Pos.x][SpritePieces[0][n].Pos.y] = EMPTYPiece;
@@ -368,7 +438,7 @@ public:
                                         }
                                         Board.board[lastmove.to.x][lastmove.to.y] = EMPTYPiece;
                                     }
-                                    Moves.push_back(MoveWB(MoveFrTo(SpritePieces[0][n].Pos, sf::Vector2i(xx, yy), SpritePieces[0][n].Type), MoveFrTo(sf::Vector2i(-1, -1), sf::Vector2i(-1, -1), EMPTYPiece)));
+                                    Moves.push_back(MoveWB(MoveFrTo(SpritePieces[0][n].Pos, sf::Vector2i(xx, yy), SpritePieces[0][n].Type, Board.board[xx][yy]), MoveFrTo(sf::Vector2i(-1, -1), sf::Vector2i(-1, -1), EMPTYPiece, EMPTYPiece)));
                                     lastmove = LastMove(SpritePieces[0][n].Pos, sf::Vector2i(xx, yy), Board.board[SpritePieces[0][n].Pos.x][SpritePieces[0][n].Pos.y]);
                                     Board.board[SpritePieces[0][n].Pos.x][SpritePieces[0][n].Pos.y] = EMPTYPiece;
                                     if (result != 5)
@@ -539,7 +609,7 @@ public:
                                 if (result == 7)
                                 {
                                     
-                                        Moves.push_back(MoveWB(MoveFrTo(SpritePieces[0][n].Pos, sf::Vector2i(xx, yy), SpritePieces[0][n].Type), MoveFrTo(sf::Vector2i(-1, -1), sf::Vector2i(-1, -1), EMPTYPiece)));
+                                    Moves[Moves.size() - 1].Black = MoveFrTo(SpritePieces[0][n].Pos, sf::Vector2i(xx, yy), SpritePieces[0][n].Type, Board.board[xx][yy]);
                                         lastmove = LastMove(SpritePieces[0][n].Pos, sf::Vector2i(xx, yy), Board.board[SpritePieces[0][n].Pos.x][SpritePieces[0][n].Pos.y]);
                                         if (SpritePieces[0][n].Pos.y - yy < 0)
                                         {
@@ -606,7 +676,8 @@ public:
                                 
                                     Moves[Moves.size() - 1].Black.from = SpritePieces[0][n].Pos;
                                     Moves[Moves.size() - 1].Black.to = sf::Vector2i(xx, yy);
-                                    Moves[Moves.size() - 1].Black.piece = SpritePieces[0][n].Type;
+                                    Moves[Moves.size() - 1].Black.piecef = SpritePieces[0][n].Type;
+                                    Moves[Moves.size() - 1].Black.pieceto = Board.board[xx][yy];
                                     Board.board[SpritePieces[0][n].Pos.x][SpritePieces[0][n].Pos.y] = EMPTYPiece;
                                     if (result != 5)
                                     for (size_t i = 0; i < SpritePieces->size(); i++)
@@ -804,12 +875,257 @@ public:
                         SpritePieces[0][n].Piece.setPosition(oldPos);
                     }
                         
-                        
+                    n = -1;
                     //if (oldPos != newPos) //position += str + " ";
                 }
             }
     
     } 
+    void MoveBack()
+    {
+        if (Moves.size() == 0)
+        {
+            Back = false;
+            return;
+        }
+        if (Moves[Moves.size()-1].Black.piecef != EMPTYPiece)
+        {
+            bool isRook = 1;
+            bool CaptureePawn = 0;
+            //Если король
+            if (Moves[Moves.size() - 1].Black.piecef == BKing)
+            {
+                //Сделал ближнюю рокировку
+                if (Moves[Moves.size() - 1].Black.to.y - Moves[Moves.size() - 1].Black.from.y >= 2)
+                {
+                    //Находим ладью
+                    for (size_t i = 0; i < SpritePieces->size(); i++)
+                    {
+                        //Вертаем обратно
+                        if (SpritePieces[0][i].Pos.x == (Board.XMax - 1) && SpritePieces[0][i].Pos.y == (Board.YMax - 3))
+                        {
+                            //cout << "ok\n";
+                            Board.board[Board.XMax - 1][Board.YMax - 3] = EMPTYPiece;
+                            Board.board[Board.XMax - 1][Board.YMax - 1] = BRook;
+                            SpritePieces[0][i].Pos = sf::Vector2i(Board.XMax - 1,Board.YMax - 1);
+                            posSetter(i);
+                            isRook = 0;
+                            break;
+                        }
+                    }
+                    for (size_t i = 0; i < SpritePieces->size(); i++)
+                    {
+                        if (SpritePieces[0][i].Pos.y == Board.YMax - 2 && SpritePieces[0][i].Pos.x == Board.XMax - 1)
+                        {
+                            Board.board[Board.XMax - 1][Board.YMax - 2] = EMPTYPiece;
+                            Board.board[Board.XMax - 1][Board.YMax - 4] = BKing;
+                            SpritePieces[0][i].Pos = Moves[Moves.size() - 1].Black.from;
+                            posSetter(i);
+                            break;
+                        }
+                    }
+                }
+                //Сделал дальнюю рокировку
+                else if (Moves[Moves.size() - 1].Black.to.y - Moves[Moves.size() - 1].Black.from.y <= -2)
+                {
+                    for (size_t i = 0; i < SpritePieces->size(); i++)
+                    {
+                        //Вертаем обратно
+                        if (SpritePieces[0][i].Pos.x == (Board.XMax - 1)&& SpritePieces[0][i].Pos.y == 3)
+                        {
+                            Board.board[Board.XMax - 1][3] = EMPTYPiece;
+                            Board.board[Board.XMax - 1][0] = BRook;
+                            SpritePieces[0][i].Pos = sf::Vector2i(Board.XMax - 1, 0);
+                            posSetter(i);
+                            isRook = 0;
+                            break;
+                        }
+                    }
+                    for (size_t i = 0; i < SpritePieces->size(); i++)
+                    {
+                        if (SpritePieces[0][i].Pos.y == Board.YMax - 6 && SpritePieces[0][i].Pos.x == Board.XMax - 1)
+                        {
+                            Board.board[Board.XMax - 1][Board.YMax - 6] = EMPTYPiece;
+                            Board.board[Board.XMax - 1][Board.YMax - 4] = BKing;
+                            SpritePieces[0][i].Pos = Moves[Moves.size() - 1].Black.from;
+                            posSetter(i);
+                            break;
+                        }
+                    }
+
+                }
+            }
+            //Если пешка
+            if (Moves[Moves.size() - 1].Black.piecef == BPawn)
+            {
+                //Совершила удар
+                if ((Moves[Moves.size() - 1].Black.to.y- Moves[Moves.size() - 1].Black.from.y) !=0)
+                {
+                    //Взятие на проходе
+                    if (Moves[Moves.size() - 1].Black.pieceto == EMPTYPiece)
+                    {
+                        CaptureePawn = 1;
+                    }
+                }
+            }
+            if (isRook)
+            {
+                Board.board[Moves[Moves.size() - 1].Black.from.x][Moves[Moves.size() - 1].Black.from.y] = Moves[Moves.size() - 1].Black.piecef;
+                Board.board[Moves[Moves.size() - 1].Black.to.x][Moves[Moves.size() - 1].Black.to.y] = Moves[Moves.size() - 1].Black.pieceto;
+                for (size_t i = 0; i < SpritePieces->size(); i++)
+                {
+                    if (SpritePieces[0][i].Pos == Moves[Moves.size() - 1].Black.to)
+                    {
+                        SpritePieces[0][i].Pos = Moves[Moves.size() - 1].Black.from;
+                        posSetter(i);
+                        break;
+                    }
+                }
+                if ((Moves[Moves.size() - 1].Black.pieceto != EMPTYPiece)&&!CaptureePawn)
+                {
+                    sf::Sprite temp;
+                    temp.setTexture(ChessPicesTexture[Moves[Moves.size() - 1].Black.pieceto]);
+                    temp.setScale(0.1 * RenderMenu::CGlobalSettings.chess.scale, 0.1 * RenderMenu::CGlobalSettings.chess.scale);
+                    SpritePieces[0].push_back(SpritePiece(temp, Moves[Moves.size() - 1].Black.to, Moves[Moves.size() - 1].Black.pieceto));
+                    posSetter(SpritePieces->size() - 1);
+                    Board.board[SpritePieces[0][SpritePieces->size() - 1].Pos.x][SpritePieces[0][SpritePieces->size() - 1].Pos.y] = SpritePieces[0][SpritePieces->size() - 1].Type;
+                }
+                if (CaptureePawn)
+                {
+                    sf::Sprite temp;
+                    temp.setTexture(ChessPicesTexture[WPawn]);
+                    temp.setScale(0.1 * RenderMenu::CGlobalSettings.chess.scale, 0.1 * RenderMenu::CGlobalSettings.chess.scale);
+                    SpritePieces[0].push_back(SpritePiece(temp, sf::Vector2i(Moves[Moves.size() - 1].Black.to.x+1, Moves[Moves.size() - 1].Black.to.y), WPawn));
+                    posSetter(SpritePieces->size() - 1);
+                }
+            }
+            DelBMove();
+            WorB = 0;
+        }
+        else
+        {
+            bool isRook = 1;
+            bool CaptureePawn = 0;
+            //Если король
+            if (Moves[Moves.size() - 1].White.piecef == WKing)
+            {
+                //Сделал ближнюю рокировку
+                if (Moves[Moves.size() - 1].White.to.y - Moves[Moves.size() - 1].White.from.y >= 2)
+                {
+                    //Находим ладью
+                    for (size_t i = 0; i < SpritePieces->size(); i++)
+                    {
+                        //Вертаем обратно
+                        if (SpritePieces[0][i].Pos.x == 0 && SpritePieces[0][i].Pos.y == (Board.YMax - 3))
+                        {
+                            Board.board[0][Board.YMax - 3] = EMPTYPiece;
+                            Board.board[0][Board.YMax - 1] = WRook;
+                            SpritePieces[0][i].Pos = sf::Vector2i(0, Board.YMax - 1);
+                            posSetter(i);
+                            isRook = 0;
+                            break;
+                        }
+                    }
+                    for (size_t i = 0; i < SpritePieces->size(); i++)
+                    {
+                        if (SpritePieces[0][i].Pos.y == Board.YMax - 2 && SpritePieces[0][i].Pos.x == 0)
+                        {
+                            Board.board[0][Board.YMax - 2] = EMPTYPiece;
+                            Board.board[0][Board.YMax - 4] = WKing;
+                            SpritePieces[0][i].Pos = Moves[Moves.size() - 1].White.from;
+                            posSetter(i);
+                            break;
+                        }
+                    }
+                }
+                //Сделал дальнюю рокировку
+                else if (Moves[Moves.size() - 1].White.to.y - Moves[Moves.size() - 1].White.from.y <= -2)
+                {
+                    for (size_t i = 0; i < SpritePieces->size(); i++)
+                    {
+                        //Вертаем обратно
+                        if (SpritePieces[0][i].Pos.x == 0 && SpritePieces[0][i].Pos.y == 3)
+                        {
+                            Board.board[0][3] = EMPTYPiece;
+                            Board.board[0][0] = WRook;
+                            SpritePieces[0][i].Pos = sf::Vector2i(0, 0);
+                            posSetter(i);
+                            isRook = 0;
+                            break;
+                        }
+                    }
+                    for (size_t i = 0; i < SpritePieces->size(); i++)
+                    {
+                        if (SpritePieces[0][i].Pos.y == Board.YMax - 6 && SpritePieces[0][i].Pos.x == 0)
+                        {
+                            Board.board[0][Board.YMax - 6] = EMPTYPiece;
+                            Board.board[0][Board.YMax - 4] = WKing;
+                            SpritePieces[0][i].Pos = Moves[Moves.size() - 1].White.from;
+                            posSetter(i);
+                            break;
+                        }
+                    }
+
+                }
+            }
+            //Если пешка
+            if (Moves[Moves.size() - 1].Black.piecef == BPawn)
+            {
+                //Совершила удар
+                if ((Moves[Moves.size() - 1].Black.to.y - Moves[Moves.size() - 1].Black.from.y) != 0)
+                {
+                    //Взятие на проходе
+                    if (Moves[Moves.size() - 1].Black.pieceto == EMPTYPiece)
+                    {
+                        CaptureePawn = 1;
+                    }
+                }
+            }
+            if (isRook)
+            {
+                Board.board[Moves[Moves.size() - 1].White.from.x][Moves[Moves.size() - 1].White.from.y] = Moves[Moves.size() - 1].White.piecef;
+                Board.board[Moves[Moves.size() - 1].White.to.x][Moves[Moves.size() - 1].White.to.y] = Moves[Moves.size() - 1].White.pieceto;
+                for (size_t i = 0; i < SpritePieces->size(); i++)
+                {
+                    if (SpritePieces[0][i].Pos == Moves[Moves.size() - 1].White.to)
+                    {
+                        SpritePieces[0][i].Pos = Moves[Moves.size() - 1].White.from;
+                        posSetter(i);
+                        break;
+                    }
+                }
+                if (Moves[Moves.size() - 1].White.pieceto != EMPTYPiece&&!CaptureePawn)
+                {
+                    sf::Sprite temp;
+                    temp.setTexture(ChessPicesTexture[Moves[Moves.size() - 1].White.pieceto]);
+                    temp.setScale(0.1 * RenderMenu::CGlobalSettings.chess.scale, 0.1 * RenderMenu::CGlobalSettings.chess.scale);
+                    SpritePieces[0].push_back(SpritePiece(temp, Moves[Moves.size() - 1].White.to, Moves[Moves.size() - 1].White.pieceto));
+                    posSetter(SpritePieces->size() - 1);
+                }
+                if (CaptureePawn)
+                {
+                    sf::Sprite temp;
+                    temp.setTexture(ChessPicesTexture[BPawn]);
+                    temp.setScale(0.1 * RenderMenu::CGlobalSettings.chess.scale, 0.1 * RenderMenu::CGlobalSettings.chess.scale);
+                    SpritePieces[0].push_back(SpritePiece(temp, sf::Vector2i(Moves[Moves.size() - 1].Black.to.x - 1, Moves[Moves.size() - 1].Black.to.y), BPawn));
+                    posSetter(SpritePieces->size() - 1);
+                }
+            }
+            
+            Moves.pop_back();
+            WorB = 1;
+        }
+        Back = false;
+    }
+    void DelBMove()
+    {
+        ///***///
+        Moves[Moves.size() - 1].Black.piecef = EMPTYPiece;
+        Moves[Moves.size() - 1].Black.pieceto = EMPTYPiece;
+        Moves[Moves.size() - 1].Black.from = sf::Vector2i(-1, -1);
+        Moves[Moves.size() - 1].Black.to = sf::Vector2i(-1, -1);
+        ///***///
+    }
     void Mover(int fx,int fy,int xx,int yy)
     {
         for (size_t i = 0; i < SpritePieces->size(); i++)
@@ -847,7 +1163,7 @@ public:
                     if (result == 7)
                     {
 
-                        Moves.push_back(MoveWB(MoveFrTo(SpritePieces[0][n].Pos, sf::Vector2i(xx, yy), SpritePieces[0][n].Type), MoveFrTo(sf::Vector2i(-1, -1), sf::Vector2i(-1, -1), EMPTYPiece)));
+                        Moves.push_back(MoveWB(MoveFrTo(SpritePieces[0][n].Pos, sf::Vector2i(xx, yy), SpritePieces[0][n].Type, Board.board[xx][yy]), MoveFrTo(sf::Vector2i(-1, -1), sf::Vector2i(-1, -1), EMPTYPiece,EMPTYPiece)));
                         lastmove = LastMove(SpritePieces[0][n].Pos, sf::Vector2i(xx, yy), Board.board[SpritePieces[0][n].Pos.x][SpritePieces[0][n].Pos.y]);
                         if (SpritePieces[0][n].Pos.y - yy < 0)
                         {
@@ -911,7 +1227,7 @@ public:
                             }
                             Board.board[lastmove.to.x][lastmove.to.y] = EMPTYPiece;
                         }
-                        Moves.push_back(MoveWB(MoveFrTo(SpritePieces[0][n].Pos, sf::Vector2i(xx, yy), SpritePieces[0][n].Type), MoveFrTo(sf::Vector2i(-1, -1), sf::Vector2i(-1, -1), EMPTYPiece)));
+                        Moves.push_back(MoveWB(MoveFrTo(SpritePieces[0][n].Pos, sf::Vector2i(xx, yy), SpritePieces[0][n].Type, Board.board[xx][yy]), MoveFrTo(sf::Vector2i(-1, -1), sf::Vector2i(-1, -1), EMPTYPiece,EMPTYPiece)));
                         lastmove = LastMove(SpritePieces[0][n].Pos, sf::Vector2i(xx, yy), Board.board[SpritePieces[0][n].Pos.x][SpritePieces[0][n].Pos.y]);
                         Board.board[SpritePieces[0][n].Pos.x][SpritePieces[0][n].Pos.y] = EMPTYPiece;
                         if (result != 5)
@@ -992,10 +1308,10 @@ public:
                                             }
                                             if (moves->size() > 0)
                                             {
-
-                                                break;
                                                 i = Board.XMax;
                                                 j = Board.YMax;
+                                                break;
+                                               
 
                                             }
                                         }
@@ -1009,9 +1325,10 @@ public:
                                 }
                                 else
                                 {
-                                    break;
                                     i = Board.XMax;
                                     j = Board.YMax;
+                                    break;
+                                    
                                 }
 
 
@@ -1043,10 +1360,10 @@ public:
                                     }
                                     if (moves->size() > 0)
                                     {
-
-                                        break;
                                         i = Board.XMax;
                                         j = Board.YMax;
+                                        break;
+                                        
 
                                     }
                                 }
@@ -1079,7 +1396,7 @@ public:
                     if (result == 7)
                     {
 
-                        Moves.push_back(MoveWB(MoveFrTo(SpritePieces[0][n].Pos, sf::Vector2i(xx, yy), SpritePieces[0][n].Type), MoveFrTo(sf::Vector2i(-1, -1), sf::Vector2i(-1, -1), EMPTYPiece)));
+                        Moves[Moves.size() - 1].Black = MoveFrTo(SpritePieces[0][n].Pos, sf::Vector2i(xx, yy), SpritePieces[0][n].Type, Board.board[xx][yy]);
                         lastmove = LastMove(SpritePieces[0][n].Pos, sf::Vector2i(xx, yy), Board.board[SpritePieces[0][n].Pos.x][SpritePieces[0][n].Pos.y]);
                         if (SpritePieces[0][n].Pos.y - yy < 0)
                         {
@@ -1146,7 +1463,8 @@ public:
 
                         Moves[Moves.size() - 1].Black.from = SpritePieces[0][n].Pos;
                         Moves[Moves.size() - 1].Black.to = sf::Vector2i(xx, yy);
-                        Moves[Moves.size() - 1].Black.piece = SpritePieces[0][n].Type;
+                        Moves[Moves.size() - 1].Black.piecef = SpritePieces[0][n].Type;
+                        Moves[Moves.size() - 1].Black.pieceto = Board.board[xx][yy];
                         Board.board[SpritePieces[0][n].Pos.x][SpritePieces[0][n].Pos.y] = EMPTYPiece;
                         if (result != 5)
                             for (size_t i = 0; i < SpritePieces->size(); i++)
@@ -1227,10 +1545,10 @@ public:
                                             }
                                             if (moves->size() > 0)
                                             {
-
-                                                break;
                                                 i = Board.XMax;
                                                 j = Board.YMax;
+                                                break;
+                                                
 
                                             }
                                         }
@@ -1244,9 +1562,10 @@ public:
                                 }
                                 else
                                 {
-                                    break;
                                     i = Board.XMax;
                                     j = Board.YMax;
+                                    break;
+                                    
                                 }
 
 
@@ -1276,10 +1595,10 @@ public:
                                     }
                                     if (moves->size() > 0)
                                     {
-
-                                        break;
                                         i = Board.XMax;
                                         j = Board.YMax;
+                                        break;
+                                        
 
                                     }
                                 }
@@ -1426,11 +1745,11 @@ public:
                         {
                             if (PacketMove[0] == 'm')
                             {
-                                /*if (n!=-1)
+                                if (n!=-1)
                                 {
                                     SpritePieces[0][n].Piece.setPosition(oldPos);
                                     isMove = 0;
-                                }*/
+                                }
                                 
                                 Mover((PacketMove[1] - '0'), (PacketMove[2] - '0'), (PacketMove[3] - '0'), (PacketMove[4] - '0'));
                                 netMove = PacketMove;
@@ -1498,12 +1817,16 @@ public:
     }
     void Draw(sf::RenderWindow* window)
     {
+        if (Back)
+        {
+            MoveBack();
+        }
         if (OnNetworkGame>0)
         {
             Network();
 
         }
-        gameUI.draw(Board.YMax,Moves);
+        gameUI.RenderChessMovesWindow(Board.YMax,Moves,Back);
         if ((WMate||WBDraw||BMate)&&!WinWindowC)
         {
             WinWindow = 1;
@@ -2581,7 +2904,7 @@ public:
             {
                 for (int i = 0; i < Moves.size(); i++)
                 {
-                    if (Moves[i].White.piece == piece)
+                    if (Moves[i].White.piecef == piece)
                     {
                         return false;
                     }                  
@@ -2659,7 +2982,7 @@ public:
             {
                 for (int i = 0; i < Moves.size(); i++)
                 {
-                    if (Moves[i].Black.piece == piece)
+                    if (Moves[i].Black.piecef == piece)
                     {
                         return false;
                     }
@@ -2709,7 +3032,7 @@ public:
                             return false;
                         }
                     }
-                    if (Board.board[Board.XMax-1][1]==EMPTYPiece&& Board.board[Board.XMax - 1][2]==EMPTYPiece, Board.board[Board.XMax - 1][3] == EMPTYPiece)
+                    if (Board.board[Board.XMax-1][1]==EMPTYPiece&& Board.board[Board.XMax - 1][2]==EMPTYPiece&& Board.board[Board.XMax - 1][3] == EMPTYPiece)
                     {
                         
                         if (isValidMoveKing(from, std::pair(from.first, from.second - 1)))
