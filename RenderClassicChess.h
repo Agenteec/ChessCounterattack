@@ -138,6 +138,10 @@ public:
     /// Отмена хода
     /// </summary>
     bool Back;
+    /// <summary>
+    /// Запрос на отмену хода
+    /// </summary>
+    bool NenBack;
 
     sf::Vector2i CordRotater(int x,int y)
     {
@@ -1197,7 +1201,6 @@ public:
                                 if (SpritePieces[0][i].Pos == sf::Vector2i(0, 0))
                                 {
                                     SpritePieces[0][i].Pos = sf::Vector2i(0, 3);
-                                    //cout << "00" << endl;
                                     posSetter(i);
                                     break;
                                 }
@@ -1817,7 +1820,7 @@ public:
     }
     void Draw(sf::RenderWindow* window)
     {
-        if (Back)
+        if ((Back&&OnNetworkGame ==0)||(Back&&NenBack))
         {
             MoveBack();
         }
