@@ -26,7 +26,7 @@ int main()
     localtime_s(&tm, &t);
     std::stringstream* ss = new stringstream;
     // форматируем дату в нужном формате
-    *ss << "Alpha V(1.3.0)  ";
+    *ss << "Alpha V(1.8.0)  ";
     *ss << std::put_time(&tm, "%d.%m.%Y") << std::endl;
     RenderMenu::VersionBuildStr = ss->str();
     delete ss;
@@ -122,7 +122,7 @@ int main()
     bool conection = false;
     RenderMenu::CGlobalSettings.chess.scale = 1.5;
     RenderClassicChess ChessRender;
-    ChessRender.Rotate(2);
+    ChessRender.Rotate(3);
     RenderClassicChess* NetGame = nullptr;
     
     //ImGuiConsole console;
@@ -172,7 +172,8 @@ int main()
             
             // Начало отрисовки imgui
             //cout << (RenderMenu::CGlobalSettings.video.FrameRateLimit == 0 ? 120 : RenderMenu::CGlobalSettings.video.FrameRateLimit)<<endl;
-            ImGui::SFML::Update(*window, sf::seconds(1.f /(RenderMenu::CGlobalSettings.video.FrameRateLimit==0?120: RenderMenu::CGlobalSettings.video.FrameRateLimit)));
+            //ImGui::SFML::Update(*window, sf::seconds(1.f /(RenderMenu::CGlobalSettings.video.FrameRateLimit==0?120: RenderMenu::CGlobalSettings.video.FrameRateLimit)));
+            ImGui::SFML::Update(*window, sf::seconds(1.f / 60.f));
             if (RenderMenu::showRenderMenu)
             {
                 RenderMenu::ShovMenu(window);

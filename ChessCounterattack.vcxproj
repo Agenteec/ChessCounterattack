@@ -163,7 +163,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ChessBoard.h" />
-    <ClInclude Include="Client.h" />
+    <ClInclude Include="NClient.h" />
     <ClInclude Include="CSettings.h" />
     <ClInclude Include="imgui-console-master\include\csys\api.h" />
     <ClInclude Include="imgui-console-master\include\csys\arguments.h" />

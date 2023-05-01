@@ -158,7 +158,7 @@
     <ClInclude Include="NetServer.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="Client.h">
+    <ClInclude Include="NClient.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

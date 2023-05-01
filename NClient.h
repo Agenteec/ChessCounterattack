@@ -2,17 +2,17 @@
 #include <thread>
 #include <SFML/Network.hpp>
 static std::string PacketMove = "-";
-class Client
+class NClient
 {
 public:
     bool debug;
-    Client(const sf::IpAddress serverAddress, unsigned short serverPort) :
+    NClient(const sf::IpAddress serverAddress, unsigned short serverPort) :
         m_socket(),
         debug(1),
         m_serverAddress(serverAddress),
         m_serverPort(serverPort),
         m_running(true),
-        m_thread(&Client::receiveMessages, this)//Передаём в поток функцию приёма сообщений
+        m_thread(&NClient::receiveMessages, this)//Передаём в поток функцию приёма сообщений
     {
         if (m_socket.connect(serverAddress, serverPort) != sf::Socket::Done)//Если подключение не состоялось
         {
@@ -27,7 +27,7 @@ public:
         }
     }
 
-    ~Client()
+    ~NClient()
     {
         disconnect();
     }

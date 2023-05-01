@@ -1,7 +1,10 @@
-#pragma once
+п»ї#pragma once
 #include "RenderMenu.h"
 #include "CSettings.h"
 #include "ChessBoard.h"
+#include <iostream>
+#include <sstream>
+#include <iomanip>
 struct MoveFrTo
 {
     int piecef;
@@ -24,6 +27,12 @@ class OnGameUI
 public:
     static float& WinW;
     static float& WinH;
+    sf::Clock clock;
+    sf::Time timeElapsed;
+    bool isBlackTurn = false;
+    bool isPaused = false;
+    int whiteTime = 10000; // РІ СЃРµРєСѓРЅРґР°С…
+    int blackTime = 60; // РІ СЃРµРєСѓРЅРґР°С…
     int selected_move;
     bool wb_move;
     OnGameUI(){}
@@ -70,7 +79,7 @@ public:
         ImGui::GetStyle().Colors[ImGuiCol_WindowBg] = ImVec4(0, 0, 0, 0.5f);
         ImGui::Begin("Chess Game", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
         ImGui::SetWindowPos("Chess Game", ImVec2(ImVec2(WinW+WinW/3, WinH/4)));
-        // Отображаем шахматные ходы
+        // РћС‚РѕР±СЂР°Р¶Р°РµРј С€Р°С…РјР°С‚РЅС‹Рµ С…РѕРґС‹
         
         for (size_t i = 0; i < moves.size(); i++)
         {
@@ -78,50 +87,100 @@ public:
             if (ImGui::Button(MoveToStr(moves[i].White).c_str()))
             {
                 
-                std::cout << " Ход \n";
+                std::cout << " РҐРѕРґ \n";
             }
             ImGui::SameLine();
             if(moves[i].Black.piecef!=EMPTYPiece)
             if (ImGui::Button(MoveToStr(moves[i].Black).c_str()))
             {
                 
-                std::cout << " Ход \n";
+                std::cout << " РҐРѕРґ \n";
             }
             ImGui::Columns();
         }
-        // Заканчиваем окно ImGui
+        // Р—Р°РєР°РЅС‡РёРІР°РµРј РѕРєРЅРѕ ImGui
         ImGui::End();
     }
-    void RenderChessMovesWindow(int HBoard, vector <MoveWB> moves,bool& back)
+    void RenderChessMovesWindow(int HBoard, vector <MoveWB> moves,bool& back, bool& NetMoveback, bool& MyMoveBack,int& rotation, string& message)
     {
         ImGui::SetNextWindowSize(ImVec2(WinW / 2.5, WinH / 3.5));
         ImGui::GetStyle().Colors[ImGuiCol_WindowBg] = ImVec4(0, 0, 0, 0.5f);
         ImGui::Begin("Chess Game", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
-        // Кнопки для сдачи, ничьей и отмены хода
+        // РљРЅРѕРїРєРё РґР»СЏ СЃРґР°С‡Рё, РЅРёС‡СЊРµР№ Рё РѕС‚РјРµРЅС‹ С…РѕРґР°
         ImGui::BeginGroup();
 
-        //ImGui::SetCursorPos(ImVec2(ImGui::GetWindowWidth() - 200, 10)); // Установка положения курсора внутри группы
-        ImGui::SetCursorPos(ImVec2(20, 30));
-        if (ImGui::Button(u8"Сдаться"))
-        {
-            // Обработка сдачи
-        }
+        //ImGui::SetCursorPos(ImVec2(ImGui::GetWindowWidth() - 200, 10)); // РЈСЃС‚Р°РЅРѕРІРєР° РїРѕР»РѕР¶РµРЅРёСЏ РєСѓСЂСЃРѕСЂР° РІРЅСѓС‚СЂРё РіСЂСѓРїРїС‹
+            if (MyMoveBack)
+            {
+                
+                if (ImGui::Button(u8"РћС‚РјРµРЅРёС‚СЊ РѕС‚РјРµРЅСѓ С…РѕРґР°"))
+                {
+                    message = ("bd");
+                    back = false;
+                    MyMoveBack = false;
+                    NetMoveback = false;
+                }
+            }
+            else if (NetMoveback)
+            {
+                
+                ImGui::Text(u8"РџСЂРѕС‚РёРІРЅРёРє С…РѕС‡РµС‚ РѕС‚РјРµРЅРёС‚СЊ РїРѕСЃР»РµРґРЅРёР№ С…РѕРґ");
+                ImGui::Spacing();
+                if (ImGui::Button(u8"РћС‚РјРµРЅРёС‚СЊ РѕС‚РјРµРЅСѓ С…РѕРґР°"))
+                {
+                    back = false;
+                    MyMoveBack = false;
+                    NetMoveback = false;
+                    message = ("bd");
+                }
+                ImGui::SameLine();
+                if (ImGui::Button(u8"РћРє"))
+                {
+                    back = true;
+                    MyMoveBack = true;
+                    NetMoveback = true;
+                    message = ("ba");
+                }
+            }
+            else
+            {
+                /*ImGui::SetCursorPos(ImVec2(0, 30));*/
+                if (ImGui::Button(u8"РЎРґР°С‚СЊСЃСЏ"))
+                {
+                    message = ("ml");
+                }
 
-        ImGui::SetCursorPos(ImVec2(110, 30)); // Установка положения курсора внутри группы
-        if (ImGui::Button(u8"Ничья"))
-        {
-            // Обработка ничьи
-        }
+                ImGui::SameLine();
+                if (ImGui::Button(u8"РќРёС‡СЊСЏ"))
+                {
+                    message = ("md");
+                }
 
-        ImGui::SetCursorPos(ImVec2(180, 30)); // Установка положения курсора внутри группы
-        if (ImGui::Button(u8"Отменить ход"))
-        {
-            back = true;
-        }
+                ImGui::SameLine();
+                if (ImGui::Button(u8"РћС‚РјРµРЅРёС‚СЊ С…РѕРґ"))
+                {
+                    message = ("b");
+                    back = true;
+                    MyMoveBack = true;
+                }
+            }
+            ImGui::Spacing();
+            if (ImGui::Button(u8"РџРѕРІРµСЂРЅСѓС‚СЊ РґРѕСЃРєСѓ"))
+            {
+                rotation++;
+                if (rotation >=5)
+                {
+                    rotation = 1;
+                }
+
+            }
+        
+        
+        
 
         ImGui::EndGroup();
-        // Колонка ходов белых
-        ImGui::Text(u8"Ходы белых/чёрных");
+        // РљРѕР»РѕРЅРєР° С…РѕРґРѕРІ Р±РµР»С‹С…
+        ImGui::Text(u8"РҐРѕРґС‹ Р±РµР»С‹С…/С‡С‘СЂРЅС‹С…");
         ImGui::Separator();
         ImGui::Columns(2, "moves_columns", true);
 
@@ -129,24 +188,25 @@ public:
         {
             if (ImGui::Button(MoveToStr(move.White).c_str()))
             {
-                // Обработка нажатия на ход белых
+                // РћР±СЂР°Р±РѕС‚РєР° РЅР°Р¶Р°С‚РёСЏ РЅР° С…РѕРґ Р±РµР»С‹С…
             }
             ImGui::NextColumn();
             if (ImGui::Button(MoveToStr(move.Black).c_str()))
             {
-                // Обработка нажатия на ход чёрных
+                // РћР±СЂР°Р±РѕС‚РєР° РЅР°Р¶Р°С‚РёСЏ РЅР° С…РѕРґ С‡С‘СЂРЅС‹С…
             }
             ImGui::NextColumn();
         }
 
         ImGui::Columns(1);
         
-        //ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 50); // Установка положения курсора по горизонтали перед рисованием текста
+        //ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 50); // РЈСЃС‚Р°РЅРѕРІРєР° РїРѕР»РѕР¶РµРЅРёСЏ РєСѓСЂСЃРѕСЂР° РїРѕ РіРѕСЂРёР·РѕРЅС‚Р°Р»Рё РїРµСЂРµРґ СЂРёСЃРѕРІР°РЅРёРµРј С‚РµРєСЃС‚Р°
 
 
-
+        //в†є
 
         ImGui::End();
+        
     }
     void WinDraw(int i,bool& b)
     {
@@ -154,22 +214,87 @@ public:
         ImGui::GetStyle().Colors[ImGuiCol_WindowBg] = ImVec4(0, 0, 0, 0.5f);
         switch (i)
         {case 0:
-            ImGui::Begin(u8"Ничья!", &b);
+            ImGui::Begin(u8"РќРёС‡СЊСЏ!", &b);
             break;
         case 1:
-            ImGui::Begin(u8"Белые победили!", &b);
+            ImGui::Begin(u8"Р‘РµР»С‹Рµ РїРѕР±РµРґРёР»Рё!", &b);
             break;
         case 2:
-            ImGui::Begin(u8"Чёрные победили!", &b);
+            ImGui::Begin(u8"Р§С‘СЂРЅС‹Рµ РїРѕР±РµРґРёР»Рё!", &b);
             break;
         default:
             break;
         }
-        if (ImGui::Button(u8"Ок"))
+        if (ImGui::Button(u8"РћРє"))
         {
             b = false;
         }
         ImGui::End();
+
     }
+    void ChessClock()
+    {
+        ImGui::Begin("Chess Clock");
+
+        std::stringstream ss;
+        ss << std::setw(2) << std::setfill('0') << whiteTime / 60 << ":"
+            << std::setw(2) << std::setfill('0') << whiteTime % 60;
+        std::string whiteTimeString = ss.str();
+
+        ss.str("");
+        ss << std::setw(2) << std::setfill('0') << blackTime / 60 << ":"
+            << std::setw(2) << std::setfill('0') << blackTime % 60;
+        std::string blackTimeString = ss.str();
+
+        if (!isPaused)
+        {
+            timeElapsed = clock.getElapsedTime();
+            if (isBlackTurn)
+            {
+                blackTime -= timeElapsed.asMilliseconds() / 1000.f;
+                if (blackTime <= 0)
+                {
+                    blackTime = 0;
+                    isPaused = true;
+                }
+            }
+            else
+            {
+                whiteTime -= timeElapsed.asMilliseconds() / 1000.f;
+                if (whiteTime <= 0)
+                {
+                    whiteTime = 0;
+                    isPaused = true;
+                }
+            }
+            clock.restart();
+        }
+
+        if (ImGui::Button(isPaused ? "Start" : "Pause"))
+        {
+            isPaused = !isPaused;
+        }
+
+        if (ImGui::Button("Reset"))
+        {
+            whiteTime = 60;
+            blackTime = 60;
+            isPaused = true;
+            isBlackTurn = false;
+        }
+
+        ImGui::Text(isBlackTurn ? "Black's turn" : "White's turn");
+
+        ImGui::Text("White: %s", whiteTimeString.c_str());
+        ImGui::Text("Black: %s", blackTimeString.c_str());
+
+        if (!isPaused)
+        {
+            ImGui::Text("Time remaining: %d", isBlackTurn ? blackTime : whiteTime);
+        }
+
+        ImGui::End();
+    }
+
 };
 
