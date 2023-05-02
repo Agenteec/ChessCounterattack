@@ -12,6 +12,7 @@
 #include <fstream>
 void Starter();
 void SaveSettings();
+void StartServer();
 void scaleImage(sf::Sprite& sprite, int desiredWidth, int desiredHeight);
 class RenderMenu
 {
@@ -297,6 +298,7 @@ public:
 
         if (ImGui::Button(u8"Запуск"))
         {
+            StartServer();
             is_server_waiting = true;
             showRenderMenu = false;
             showLocalGame = false;

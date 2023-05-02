@@ -210,7 +210,10 @@ void RenderMenu::ReloaderDialog()
         ImGui::EndPopup();
     }*/
 }
-
+void StartServer()
+{
+    std::system("start ServerChessCounterattack.exe");
+}
 
 
 

@@ -15,7 +15,11 @@ class CChessSettings
 public:
 	float scale;
 	int cellSize;
-	CChessSettings() :scale(1), cellSize(50){}
+	int gamemode;
+	int timeControl;
+	int increment;
+	bool playerColor;
+	CChessSettings() :scale(1), cellSize(50), gamemode(0), timeControl(600), increment(0), playerColor(0){}
 };
 class CNetworkSettings
 {

@@ -66,6 +66,9 @@
     <ClCompile Include="Client.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="NetParser.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFtoS.h">
@@ -159,6 +162,9 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="NClient.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="NetParser.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

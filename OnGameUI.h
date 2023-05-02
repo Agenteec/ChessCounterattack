@@ -2,9 +2,13 @@
 #include "RenderMenu.h"
 #include "CSettings.h"
 #include "ChessBoard.h"
+#include "imgui.h"
+#include "imgui-SFML.h"
 #include <iostream>
 #include <sstream>
 #include <iomanip>
+
+
 struct MoveFrTo
 {
     int piecef;
@@ -20,24 +24,17 @@ struct MoveWB
     MoveWB(MoveFrTo White, MoveFrTo Black) :White(White), Black(Black) {}
 
 };
-
 class OnGameUI
 {
     
 public:
     static float& WinW;
     static float& WinH;
-    sf::Clock clock;
-    sf::Time timeElapsed;
-    bool isBlackTurn = false;
-    bool isPaused = false;
-    int whiteTime = 10000; // в секундах
-    int blackTime = 60; // в секундах
-    int selected_move;
-    bool wb_move;
+
     OnGameUI(){}
     string MoveToStr(MoveFrTo move)
     {
+       
         if (move.piecef == EMPTYPiece)
             return "-";
         std::string s = "";
@@ -104,6 +101,7 @@ public:
     void RenderChessMovesWindow(int HBoard, vector <MoveWB> moves,bool& back, bool& NetMoveback, bool& MyMoveBack,int& rotation, string& message)
     {
         ImGui::SetNextWindowSize(ImVec2(WinW / 2.5, WinH / 3.5));
+        ImGui::SetNextWindowPos(ImVec2(WinW / 0.75, WinH / 4.555));
         ImGui::GetStyle().Colors[ImGuiCol_WindowBg] = ImVec4(0, 0, 0, 0.5f);
         ImGui::Begin("Chess Game", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
         // Кнопки для сдачи, ничьей и отмены хода
@@ -211,6 +209,7 @@ public:
     void WinDraw(int i,bool& b)
     {
         ImGui::SetNextWindowSize(ImVec2(WinW / 5, WinH /6));
+
         ImGui::GetStyle().Colors[ImGuiCol_WindowBg] = ImVec4(0, 0, 0, 0.5f);
         switch (i)
         {case 0:
@@ -232,8 +231,15 @@ public:
         ImGui::End();
 
     }
-    void ChessClock()
-    {
+    void drawChessClock(sf::RenderWindow* window) {
+        static bool isPaused = true;
+        static bool isBlackTurn = false;
+        static int whiteTime = 60*100;
+        static int blackTime = 60;
+        static sf::Clock ClockT;
+
+        //ImGui::SFML::Update(*window, ClockT.restart());
+        ClockT.restart();
         ImGui::Begin("Chess Clock");
 
         std::stringstream ss;
@@ -246,37 +252,29 @@ public:
             << std::setw(2) << std::setfill('0') << blackTime % 60;
         std::string blackTimeString = ss.str();
 
-        if (!isPaused)
-        {
-            timeElapsed = clock.getElapsedTime();
-            if (isBlackTurn)
-            {
-                blackTime -= timeElapsed.asMilliseconds() / 1000.f;
-                if (blackTime <= 0)
-                {
+        if (!isPaused) {
+            sf::Time timeElapsed = ClockT.restart();
+            if (isBlackTurn) {
+                blackTime -= timeElapsed.asSeconds();
+                if (blackTime <= 0) {
                     blackTime = 0;
                     isPaused = true;
                 }
             }
-            else
-            {
-                whiteTime -= timeElapsed.asMilliseconds() / 1000.f;
-                if (whiteTime <= 0)
-                {
+            else {
+                whiteTime -= timeElapsed.asSeconds();
+                if (whiteTime <= 0) {
                     whiteTime = 0;
                     isPaused = true;
                 }
             }
-            clock.restart();
         }
 
-        if (ImGui::Button(isPaused ? "Start" : "Pause"))
-        {
+        if (ImGui::Button(isPaused ? "Start" : "Pause")) {
             isPaused = !isPaused;
         }
 
-        if (ImGui::Button("Reset"))
-        {
+        if (ImGui::Button("Reset")) {
             whiteTime = 60;
             blackTime = 60;
             isPaused = true;
@@ -288,8 +286,7 @@ public:
         ImGui::Text("White: %s", whiteTimeString.c_str());
         ImGui::Text("Black: %s", blackTimeString.c_str());
 
-        if (!isPaused)
-        {
+        if (!isPaused) {
             ImGui::Text("Time remaining: %d", isBlackTurn ? blackTime : whiteTime);
         }
 

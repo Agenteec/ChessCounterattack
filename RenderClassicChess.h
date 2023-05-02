@@ -5,6 +5,7 @@
 #include <SFML/Audio.hpp>
 #include "NClient.h"
 #include <cmath>
+#include "NetParser.h"
 struct LastMove
 {
     int piece;
@@ -31,7 +32,10 @@ public:
     #pragma region Chess text
     sf::Text ChessText;
     sf::Font font;
+    sf::Text Superiority;
+
     #pragma endregion
+    int superiority;
     /// <summary>
     /// Поворот доски
     /// </summary>
@@ -210,7 +214,7 @@ public:
         }
         return sf::Vector2i(xx, yy);
     }
-    RenderClassicChess() :Board(ChessBoard()), Rotation(1), offset(sf::Vector2f(25 * RenderMenu::CGlobalSettings.chess.scale, 25 * RenderMenu::CGlobalSettings.chess.scale)), isMove(0), n(-1), dx(0), dy(0), WorB(1) ,lastmove(LastMove(sf::Vector2i(), sf::Vector2i(),12)),WCheck(false),WMate(false),BMate(false),BCheck(false),moves(nullptr),WBDraw(false),OnNetworkGame(0),conection(0),netMove("-"),myMove("-"), WinWindow(0), WinWindowC(0),nc(nullptr),Back(false),IsHistory(false),NetBack(false),MyNetBack(false),MyPacket(""),TransPawn(0) {
+    RenderClassicChess() :Board(ChessBoard()), Rotation(1), offset(sf::Vector2f(25 * RenderMenu::CGlobalSettings.chess.scale, 25 * RenderMenu::CGlobalSettings.chess.scale)), isMove(0), n(-1), dx(0), dy(0), WorB(1) ,lastmove(LastMove(sf::Vector2i(), sf::Vector2i(),12)),WCheck(false),WMate(false),BMate(false),BCheck(false),moves(nullptr),WBDraw(false),OnNetworkGame(0),conection(0),netMove("-"),myMove("-"), WinWindow(0), WinWindowC(0),nc(nullptr),Back(false),IsHistory(false),NetBack(false),MyNetBack(false),MyPacket(""),TransPawn(0), superiority(0){
 
         
         MoveSoundBuffer.loadFromFile("source\\Sounds\\Move.wav");
@@ -219,12 +223,16 @@ public:
         CaptureeSound.setBuffer(CaptureSoundBuffer);
 
         Rotation = 4;
-        ChessText.setFillColor(sf::Color::Green);
+        
 
         if (!font.loadFromFile("source\\Fonts\\arial.ttf"))
         {
             std::cout << "Unable to load font!\n";
         }
+        Superiority.setFont(font);
+        Superiority.setFillColor(sf::Color(0,0,0));
+        Superiority.setCharacterSize(30 * RenderMenu::CGlobalSettings.chess.scale * 0.7);
+
         ChessText.setFont(font);
         ChessText.setCharacterSize(14 * RenderMenu::CGlobalSettings.chess.scale * 0.7);
         //ChessText.setScale(RenderMenu::CGlobalSettings.chess.scale, RenderMenu::CGlobalSettings.chess.scale);
@@ -974,10 +982,56 @@ public:
                 SpritePieces[0][n].Piece.setPosition(oldPos);
             }
             n = -1;
-
-
-            //if (oldPos != newPos) //position += str + " ";
+            
+            SetSuperiority();
+           
         }
+    }
+    void SetSuperiority()
+    {
+        int bs = 0;
+        int ws = 0;
+        for (int i = 0; i < Board.XMax; i++)
+        {
+            for (int j = 0; j < Board.YMax; j++)
+            {
+                if (Board.board[i][j] != EMPTYPiece)
+                {
+                    switch (Board.board[i][j])
+                    {
+                    case WPawn:
+                        ws++;
+                        break;
+                    case WKnight:
+                    case WBishop:
+                        ws += 3;
+                        break;
+                    case WRook:
+                        ws += 5;
+                        break;
+                    case WQueen:
+                        ws += 9;
+                        break;
+                    case BPawn:
+                        bs++;
+                        break;
+                    case BKnight:
+                    case BBishop:
+                        bs += 3;
+                        break;
+                    case BRook:
+                        bs += 5;
+                        break;
+                    case BQueen:
+                        bs += 9;
+                        break;
+                    default:
+                        break;
+                    }
+                }
+            }
+        }
+        superiority = ws - bs;
     }
     void MoveBack()
     {
@@ -1244,6 +1298,7 @@ public:
             WorB = 1;
         }
         Back = false;
+        SetSuperiority();
     }
     void DelBMove()
     {
@@ -1754,6 +1809,7 @@ public:
                 }
             }
         }
+        SetSuperiority();
     }
     void Restart()
     {
@@ -1859,7 +1915,7 @@ public:
                 * Этот клиент управляет сервером
                 * Он отсылает начальные настройки
                 */
-                nc->sendMessage("~");
+                nc->sendMessage(NetParser::NetSettings(RenderMenu::CGlobalSettings.chess.gamemode, RenderMenu::CGlobalSettings.chess.timeControl, RenderMenu::CGlobalSettings.chess.increment, RenderMenu::CGlobalSettings.chess.playerColor));
                 
             }
             else
@@ -2007,7 +2063,7 @@ public:
         {
             nc->sendMessage(msg);
         }
-
+        gameUI.drawChessClock(window);
         if ((WMate||WBDraw||BMate)&&!WinWindowC)
         {
             WinWindow = 1;
@@ -2038,6 +2094,16 @@ public:
         {
             TransPawn = 0;
         }
+        Superiority.setPosition(Board.XMax * RenderMenu::CGlobalSettings.chess.cellSize * RenderMenu::CGlobalSettings.chess.scale +RenderMenu::CGlobalSettings.chess.scale + RenderMenu::CGlobalSettings.video.WinW / 2 - Board.XMax / 2 * RenderMenu::CGlobalSettings.chess.cellSize * RenderMenu::CGlobalSettings.chess.scale+20, RenderMenu::CGlobalSettings.chess.scale + RenderMenu::CGlobalSettings.video.WinH / 10);
+        Superiority.setString(std::to_string(superiority));
+        window->draw(Superiority);
+        //Рамка
+        sf::RectangleShape Bsquare(sf::Vector2f(RenderMenu::CGlobalSettings.chess.cellSize * RenderMenu::CGlobalSettings.chess.scale * Board.XMax+16, RenderMenu::CGlobalSettings.chess.cellSize * RenderMenu::CGlobalSettings.chess.scale * Board.YMax+16));
+        Bsquare.setPosition(0 * RenderMenu::CGlobalSettings.chess.cellSize * RenderMenu::CGlobalSettings.chess.scale + RenderMenu::CGlobalSettings.video.WinW / 2 - Board.XMax / 2 * RenderMenu::CGlobalSettings.chess.cellSize * RenderMenu::CGlobalSettings.chess.scale-8, 0 * RenderMenu::CGlobalSettings.chess.cellSize * RenderMenu::CGlobalSettings.chess.scale + RenderMenu::CGlobalSettings.video.WinH / 10-8);
+        Bsquare.setFillColor(sf::Color(31, 33, 33));
+        window->draw(Bsquare);
+        //Рамка
+        //Отрисовка фигур, клеток доски, подсветки ходов и т.д.
         for (int i = 0; i < Board.XMax; ++i)
         {
             for (int j = 0; j < Board.YMax; ++j)
