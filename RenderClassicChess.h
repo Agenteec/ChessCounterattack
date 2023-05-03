@@ -861,9 +861,10 @@ public:
                                                 if (moves->size() > 0)
                                                 {
 
-                                                    break;
+                                                   
                                                     i = Board.XMax;
                                                     j = Board.YMax;
+                                                    break;
 
                                                 }
                                             }
@@ -877,9 +878,10 @@ public:
                                     }
                                     else
                                     {
-                                        break;
+                                        
                                         i = Board.XMax;
                                         j = Board.YMax;
+                                        break;
                                     }
 
 
