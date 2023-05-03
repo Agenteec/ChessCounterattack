@@ -2927,6 +2927,11 @@ public:
            
             if (piece == WKing)
             {
+                //Если огонь по своим
+                if (Board.board[to.first][to.second] < 6 && Board.board[to.first][to.second] != WKing)
+                {
+                    return false;
+                }
                 //Есть ли пешки рядом
                 if (to.first + 1 < Board.XMax && to.second + 1 < Board.YMax)
                 {
@@ -2953,7 +2958,7 @@ public:
                     for (int j = 0; j < Board.YMax; j++)
                         if (Board.board[i][j] == BKing)
                         {
-                            if (i + 1 < Board.XMax && j + 1 < Board.YMax)
+                            if (i + 1 < Board.XMax && j + 1 < Board.YMax)//++
                             {
                                 if (Board.board[i + 1][j + 1] == WKing)
                                 {
@@ -2963,7 +2968,7 @@ public:
                                     return false;
                                 }
                             }
-                            if (j + 1 < Board.YMax)
+                            if (j + 1 < Board.YMax)//0+
                             {
                                 if (Board.board[i][j + 1] == WKing)
                                 {
@@ -2973,7 +2978,7 @@ public:
                                     return false;
                                 }
                             }
-                            if (i - 1 >= 0 && j + 1 < Board.YMax)
+                            if (i - 1 >= 0 && j + 1 < Board.YMax)//-+
                             {
                                 if (Board.board[i - 1][j + 1] == WKing)
                                 {
@@ -2983,7 +2988,7 @@ public:
                                     return false;
                                 }
                             }
-                            if (i - 1 >= 0)
+                            if (i - 1 >= 0)//-0
                             {
                                 if (Board.board[i - 1][j] == WKing)
                                 {
@@ -2993,7 +2998,7 @@ public:
                                     return false;
                                 }
                             }
-                            if (i - 1 >= 0 && j - 1 >= 0)
+                            if (i - 1 >= 0 && j - 1 >= 0)//--
                             {
                                 if (Board.board[i - 1][j - 1] == WKing)
                                 {
@@ -3003,9 +3008,9 @@ public:
                                     return false;
                                 }
                             }
-                            if (j - 1 >= 0)
+                            if (j - 1 >= 0)//0-
                             {
-                                if (Board.board[i][j + 1] == WKing)
+                                if (Board.board[i][j - 1] == WKing)
                                 {
                                     
                                     Board.board[to.first][to.second] = tto;
@@ -3013,7 +3018,7 @@ public:
                                     return false;
                                 }
                             }
-                            if (i + 1 < Board.XMax && j - 1 >= 0)
+                            if (i + 1 < Board.XMax && j - 1 >= 0)//+-
                             {
                                 if (Board.board[i + 1][j - 1] == WKing)
                                 {
@@ -3023,7 +3028,7 @@ public:
                                     return false;
                                 }
                             }
-                            if (i + 1 < Board.XMax)
+                            if (i + 1 < Board.XMax)//+0
                             {
                                 if (Board.board[i + 1][j] == WKing)
                                 {
@@ -3038,6 +3043,7 @@ public:
                             
                         }
                 }
+
                 int result = isValidMove(to, to, 1);
                 if (result != 0)
                 {
@@ -3050,6 +3056,11 @@ public:
             }
             if (piece == BKing)
             {
+                //Если огонь по своим
+                if (Board.board[to.first][to.second] >= 6 && Board.board[to.first][to.second] < 12 && Board.board[to.first][to.second] != BKing)
+                {
+                    return false;
+                }
                 //Есть ли пешки рядом
                 if (to.first - 1 >= 0 && to.second + 1 < Board.YMax)
                 {
@@ -3073,7 +3084,7 @@ public:
                     for (int j = 0; j < Board.YMax; j++)
                         if (Board.board[i][j] == WKing)
                         {
-                            if ((i + 1 < Board.XMax) &&(j + 1 < Board.YMax))
+                            if ((i + 1 < Board.XMax) &&(j + 1 < Board.YMax))//++
                             {
                                 if (Board.board[i + 1][j + 1] == BKing)
                                 {
@@ -3083,7 +3094,7 @@ public:
                                 }
                                     
                             }
-                            if ((j + 1) < Board.YMax)
+                            if ((j + 1) < Board.YMax)//0+
                             {
                                 if (Board.board[i][j + 1] == BKing)
                                 {
@@ -3092,7 +3103,7 @@ public:
                                     return false;
                                 }
                             }
-                            if (i - 1 >= 0 && j + 1 < Board.YMax)
+                            if (i - 1 >= 0 && j + 1 < Board.YMax)//-+
                             {
                                 
                                 if (Board.board[i - 1][j + 1] == BKing)
@@ -3102,7 +3113,7 @@ public:
                                     return false;
                                 }
                             }
-                            if ((i - 1 )>= 0)
+                            if ((i - 1 )>= 0)//-0
                             {
                                 if (Board.board[i - 1][j] == BKing)
                                 {
@@ -3111,7 +3122,7 @@ public:
                                     return false;
                                 }
                             }
-                            if ((i - 1 >= 0 )&&( (j - 1) >= 0))
+                            if ((i - 1 >= 0 )&&( (j - 1) >= 0))//--
                             {
                                 if (Board.board[i - 1][j - 1] == BKing)
                                 {
@@ -3120,16 +3131,16 @@ public:
                                     return false;
                                 }
                             }
-                            if (j - 1 >= 0)
+                            if (j - 1 >= 0)//0-
                             {
-                                if (Board.board[i][j + 1] == BKing)
+                                if (Board.board[i][j - 1] == BKing)
                                 {
                                     Board.board[from.first][from.second] = BKing;
                                     Board.board[to.first][to.second] = tto;
                                     return false;
                                 }
                             }
-                            if ((i + 1 < Board.XMax )&& (j - 1 >= 0))
+                            if ((i + 1 < Board.XMax )&& (j - 1 >= 0))//+-
                             {
                                 if (Board.board[i + 1][j - 1] == BKing)
                                 {
@@ -3138,7 +3149,7 @@ public:
                                     return false;
                                 }
                             }
-                            if (i + 1 < Board.XMax)
+                            if (i + 1 < Board.XMax)//+0
                             {
                                 if (Board.board[i + 1][j] == BKing)
                                 {
@@ -3152,6 +3163,7 @@ public:
                             break;
                         }
                 }
+               
                 int result = isValidMove(to, to,2);
                 if (result != 0)
                 {
