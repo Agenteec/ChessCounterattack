@@ -122,7 +122,7 @@ int main()
     bool conection = false;
     RenderMenu::CGlobalSettings.chess.scale = 1.5;
     RenderClassicChess ChessRender;
-    ChessRender.Rotate(3);
+    ChessRender.Rotate(2);
     RenderClassicChess* NetGame = nullptr;
     
     //ImGuiConsole console;
